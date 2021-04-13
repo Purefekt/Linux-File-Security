@@ -1,0 +1,193 @@
+Week3 commands [Veer Singh]
+
+>>> username: root
+>>> password: INBMA0634L
+
+We will create two users, user1 and user2 to show the file security
+>>> adduser user1
+>>> adduser user2
+
+>>> cat /etc/passwd 
+We can see the new users in the bottom
+
+>>> id user1
+>>> id user2
+shows properties for this user
+
+>>> cat /etc/group
+shows groups information
+
+>>> groupadd users
+lets us add a group called "users"
+
+>>> usermod -a -G users user1
+>>> usermod -a -G users user2
+add user1 and user2 to group users
+>>> cat /etc/group
+we can see that users group has user1 and user2 as members
+
+>>> cat /etc/shadow
+shadow file stores the passwords in an encrypted format. we can see the password of the root user in an encrypted format. also user1 and user2 dont have any passwords
+
+>>> passwd user1
+>>> 1234
+>>> 1234
+>>> passwd user2
+>>> 1234
+>>> 1234
+root user can set passwords for all users, but users can only change and set passwords for themselves. Here we set password for both users
+
+>>> cat /etc/shadow
+Now we can see passwords for user1 and user2
+
+>>> ls -l /etc/passwd
+priveledges of the passwd file. Owner is root, group is root. "-rw-r--r--" First - means it is a regular file. Followed by 3 rights for the owner, then group and then others. Owner can read and write, but group members and others can only right.
+
+>>> stat /etc/passwd
+more detailed information of passwd. Access: (0644/-rw-r--r--) shows the rights. 0644 is the numerical representation of rw-r--r-- since it is 110(6) 100(4) 100(4). Device shows which partition this file is stored in.
+
+>>> lsblk -f
+Similar to lsblk
+
+>>> cat /etc/fstab
+this is the linux system filesystem table. configuration file for mounting and unmounting file systems to a machine.
+
+>>> blkid
+shows block device attributes
+
+>>> ls -al /home/
+>>> umount /home/
+>>> ls -al /home/
+we can unmount home, we use ls -al to see its content before and after unmounting, as we can see it is empty afterwards.
+
+>>> mount /home/
+>>> ls -al /home/
+we can mount it again
+
+>>> umount /home/
+>>> mount /dev/sda2 /mnt 
+>>> ls -al /mnt 
+we can also mount it to a different place
+
+>>> cat >/home/some.file
+>>> hello
+>>> ctrl + c
+>>> ls -al /home/
+we create a file in home and it is showing up in home. Now we can mount over this but this will make the file "some.file" inaccessible
+>>> umount /dev/sda2
+>>> mount /home/
+>>> ls -al /home/
+The file "some.file" doesnt appear here 
+
+Open a new user session in putty
+>>> user1
+>>> 1234
+
+>>>user1>>> cat /etc/shadow
+we get a permission denied error since user1 doesnt have the rights
+
+>>>user1>>> cat >message.txt
+>>>user1>>> user1
+>>>user1>>> ctrl+c
+>>>user1>>> stat message.txt
+We make a new file called "message.txt". When we run the stat command on this new file we see the permissions as "rw-rw-r--" which means everyone must have read permission.
+
+Open a new user session in putty
+>>> user2
+>>> 1234
+
+>>>user2>>> cat /home/user1/message.txt
+we get a permission denied error, even thought we just saw that this file had a read right to everyone. The problem is the /home/user1 directory doesnt allow permissions to read.
+
+>>>user1>>> stat /home/user1
+we can see that others do not have permissions for this, so even if we have a file inside this folder which has read permissions we still wont be able to read it.
+
+>>>user2>>> cd /home/user1
+for the same reason we get an error for this
+
+>>>user1>>> chmod 704 /home/user1
+Now we changed the /home/user1 directory rights from 700 to 704 which means others will have read permissions.
+>>>user1>>> stat /home/user1
+we can confirm it by checking using this
+
+>>>user2>>> ls /home/user1
+Now we can see the items inside user1 home directory as user2. Note we can still not cd to this or make changes since its only a read permission
+
+>>>user1>>> chmod 701 /home/user1
+>>>user1>>> stat /home/user1
+we grant execute rights to others for home dir of user1, this means others can cd to this dir
+
+>>>user2>>> ls /home/user1
+now we are unable to check contents of this dir as user2 since there is no read right
+>>>user2>>> cd /home/user1
+>>>user2>>> pwd 
+but we can cd to this dir
+
+>>>user1>>> mkdir dir1
+>>>user1>>> ls -ald message.txt dir1/
+we make a new dir as user1 and then check the rights of message.txt and dir1/
+
+>>>user1>>> chmod 000 message.txt
+>>>user1>>> cat message.txt
+Now user1 itself doesnt have any read, write or execute rights since the owner rights = 0. but we can just change the rights to for example 600 and it is accessible again
+
+>>> cd ~
+>>> touch my-file-1
+>>> mkdir my-dir-1
+>>> ls -ald my-file-1 my-dir-1/
+on root, we go to the home dir and then make a file and a directory
+
+>>>user2>>> cd ~
+>>>user2>>> touch my-file-1
+>>>user2>>> mkdir my-dir-1
+>>>user2>>> ls -ald my-file-1 my-dir-1/
+on user2, we go to the home dir and then make a file and a directory
+
+compare the default access rights for root and user2 for this file and directory
+As we can see when we make files and directory as a user, there is automatic "write" priveledge given to group users, that is not the case for when we do the same as root user. This setting can be read from the "umask" command.
+
+>>> umask
+>>>user2>>> umask
+the umask for root is 0022 and the umask for user2 is 0002. How this works is we take 666 and subtract is from the mask. so 666 - 022 = 644 for root and 666-002 = 664 for user2.
+
+we can also change the umask
+>>> umask 077
+>>> touch my-file-2
+>>> stat my-file-2
+as we can see now the rights of this file are 600 instead of 644
+
+>>>user1>>> mkdir dir2
+>>>user1>>> chmod 777 dir2
+>>>user1>>> date >dir2/date.txt
+>>>user1>>> ls -la dir2
+>>>user1>>> ls -lad dir2
+we create a dir called dir2 inside /home/user1 with full rights to everyone and then create a text file which contains the date at that point inside it. we can also see the rights
+
+>>>user2>>> cat /home/user1/dir2/date.txt
+this works and we can see the contents of this text file
+
+>>>user1>>> chmod 000 dir2/date.txt
+>>>user1>>> ls -la dir2
+this way we can change rights of date.txt
+
+>>>user2>>> rm /home/user1/dir2/date.txt
+we are still able to delete this file as user2 because we have the write priveledge in dir2 directory even if we do not have access to the file itself.
+
+
+We can also change the groups of files as a regular user. We will demonstrate this inside /opt/ since we made a mess in /home/. Since we do not have write access to /opt we can ask the root user to provide these rights.
+>>> chmod 777 /opt/
+
+>>>user1>>> cd /opt/
+>>>user1>>> date >current-date.txt
+>>>user1>>> ls -la
+now we created this file as user1 inside /opt/ directory
+
+>>>user1>>> chown :users current-date.txt
+>>>user1>>> ls -la
+as we can see the attached group is users now. Since we already had put user2 inside users, we now have read and write priveledges on user2 for this file.
+
+if we change the rights to 040 which means group members can read the file but the owner and others have no rights. Then user2 will be able to read the file but user1 even though being a member of group users, wont be able tor read the file because the system first checks the owner priveledges. We can test this:
+>>>user1>>> chmod 040 current-date.txt
+>>>user1>>> ls -al
+>>>user2>>> cat /opt/current-date.txt
+>>>user1>>> cat /opt/current-date.txt

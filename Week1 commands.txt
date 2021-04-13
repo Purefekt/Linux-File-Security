@@ -1,0 +1,46 @@
+Week1 commands [Veer Singh]
+
+>>> username: root
+>>> password: INBMA0634L
+
+>>> ip addr
+shows the network details
+
+>>> vi /etc/sysconfig/network-scripts/ifcfg-enp0s3
+vi text editor to edit file ifcfg-enp0s3 in location /etc/sysconfig/network-scripts/
+inside this editor press "i" to go to insert more, go to the last line "ONBOOT" and set it to "yes". Press "esc" and then press "shift+z" twice to save.
+
+We can also use nano text editor
+>>> nano /etc/sysconfig/network-scripts/ifcfg-enp0s3
+Exit, save, etc can be done with control + another key
+
+>>> dnf install vim nano mc
+dnf is a package manager for CentOS. This command lets us install vim(enhanced version of vi editor), nano and mc(midnight commander)
+
+>>> man man
+man is the manual command, the second argument will give us the documentation for the given. This command will give us the manual for the manual. We can use "/word" to search for "word" in the manual.
+
+>>> man pwd 
+manual for the pwd command
+
+>>> man passwd 
+passwd is the file to update user passwords
+
+>>> man -k password
+Search for all password
+
+>>> man -K password
+Search and open the first search result
+
+>> history
+prints previously used commands
+
+>> mc
+It is a graphical user interface to manage file system on linux. F10 to quit. F3 to read a file.
+
+>> mcedit
+edit a file
+
+
+>> mcview
+view a file

@@ -1,0 +1,95 @@
+Week2 commands [Veer Singh]
+
+>>> username: root
+>>> password: INBMA0634L
+
+Make a duplicate sesson on putty and login with root
+
+>>> username: root
+>>> password: INBMA0634L
+
+Everything is a file in Linux operating system
+
+>> cd ..
+go one level up in the file system heirarchy
+
+>>> cd ~
+go to the home folder or root for root user
+
+>>> cd /etc/sysconfig/network-scripts/
+go to the network-scripts directory inside sysconfig directory inside etc
+
+>>> ls
+list files in a directory
+
+>>> ls -a
+lists all files including hidden files. "." file is the current directory ".." is the previous directiry.
+
+>>> cd ~
+>>> ls -a
+blue ones are directories and normal ones are files, navigate to the same in midnight commander putty and see the files.
+
+>>> ls -l
+shows some more information about the files inside the pwd, like permissions, owner, time modified
+
+>>> ls -al
+mixes -a and -l into one
+
+>>ls -al /etc
+lets us view the contents of /etc without changing directories
+
+>>> cd /etc/sysconfig/network-scripts/
+>>> ls -la
+>>> file ifcfg-enp0s3
+>>> file /etc/sysconfig/network-scripts
+file command shows us the type of file, is it a ASCII text file or a directory or something else
+
+>>> ls -ali
+show the inode number for all files
+
+>>> ls -ali -d
+shows the inode and other info for directories in the pwd
+
+>>> lsblk
+>>> lsblk -f
+shows a list of block devices. block devices can be hard drives, CD-ROMSs , RAMs, etc
+We can see we have 2 block devices. sda has 3 partitions
+-f shows more information like file system type
+
+>>> ps 
+lists current processes
+
+>>> cat >/root/hello.txt 
+>>> hello
+>>> control+c
+add data to a text file
+
+Creating a new regular user
+>>> useradd user1
+>>> passwd user1
+>>> 1234
+>>> 1234
+
+Open a new duplicate putty session and log in as user1
+>>> user: user1
+>>> password: 1234
+
+>>>user1>>> id 
+shows user and group IDs 
+Currenty user name is user1, group is also user1 and currently user1 is member of user1 group
+
+>>>user1>>> cd /etc/sysconfig/network-scripts/
+>>>user1>>> ls -ld
+drwxr-xr-x. 2 root root 26 Feb  7 08:41 .
+First 3 are the rights of root user
+Second 3 are the rights of members of root group
+Last 3 are the rights of other users
+r - read
+w - write
+x - execute
+
+>>>user1>>> ls -la /home/
+drwxr-xr-x.  3 root  root   19 Apr 12 07:00 .
+dr-xr-xr-x. 17 root  root  224 Feb  7 08:27 ..
+drwx------.  2 user1 user1  62 Apr 12 07:00 user1
+Here we can see that only user1(and root) have access to /home/user1
