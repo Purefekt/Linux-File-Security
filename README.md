@@ -1,7 +1,7 @@
 # Linux File Security
 
 These are my notes for the topics covered during the classes of the course IT Security. There is a [main PDF]() which contains everything except the commands, and the weekly text files contain the commands used in class and what they do.  
-These commands are common to all Linux operating systems but we use a custom copy of CentOS created by my professor linked [here]().  
+These commands are common to all Linux operating systems but we use a custom copy of CentOS created by my professor linked [here](https://drive.google.com/file/d/13KQ0yzS99wd4oZcjUcdPVwn0VXd1pydB/view?usp=sharing).  
 You must import this copy to virtualbox and keep all settings the same.  
 Start with the main PDF and it will have directions on how to start any week which is followed by commands in the text file. 
 
