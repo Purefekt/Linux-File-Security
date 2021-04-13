@@ -6,7 +6,7 @@ You must import this copy to virtualbox and keep all settings the same.
 Start with the main PDF and it will have directions on how to start any week which is followed by commands in the text file. 
 
 ## Some important things to understand the text files better
-- >>> means it is a command issued as a root user
-- >>>user1>>> means this command was issued as user1
-- >>>user2>>> means this command was issued as user2
+- '>>>' means it is a command issued as a root user
+- '>>>user1>>>' means this command was issued as user1
+- '>>>user2>>>' means this command was issued as user2
 - Anything other than these means it is not a command and is some explanation
