@@ -1,0 +1,175 @@
+Week4 commands [Veer Singh]
+
+>>> username: root
+>>> password: INBMA0634L
+
+>>> useradd user1
+>>> useradd user2
+>>> usermod -a -G users user1
+>>> usermod -a -G users user2
+>>> passwd user1
+>>> 1234
+>>> 1234
+>>> passwd user2
+>>> 1234
+>>> 1234
+We make two users and add them to group called users, and give them passwords 1234.
+
+>>> cat /etc/shadow
+>>> stat /etc/shadow
+using the cat command we can see the contents of this file, when we run the stat command on this file we see that the permissions are 000 which means nobody (except root) has any kind of permissions for this file
+
+Open a duplicate putty session and login as user1
+>>>user1>>> username: user1
+>>>user1>>> password: 1234
+
+>>>user1>>> passwd
+>>>user1>>> 1234
+>>>user1>>> INBMA0634L
+>>>user1>>> INBMA0634L
+user1 is able to change his own password
+
+>>> cat /etc/shadow
+Now we see that the encrypted passwod for user1 has changed, this was changed when user1 changed the password but how is it possible since shadow file has 000 rights? This is because of the passwd command.
+
+>>>user1>>> which passwd
+>>>user1>>> stat /usr/bin/passwd
+we use which command to see the path of the shell command, in this case passwd. then we use stat on this file and see that the permissions are "rwsr-xr-x", there is a special "s" character in the owner execute position. We can check the same on midnight commander gui by navigating to this file and File->Chmod(as shown in the main pdf). Set user ID on execution is on. Which means when we execute it the permissions are inhereted from the root user.
+
+We can add this set user ID on execution bit manually
+>>> which cat
+>>> chmod u+s /usr/bin/cat
+>>> ls -l /usr/bin/cat
+We do this on cat command, we first find its path and then run the chmod u+s command on it.
+>>> chmod 4755 /usr/bin/cat
+does the same since 4 = 100 
+
+We can sometimes misconfigure, and the system tells us by showing a capital S or T in the permission vector.
+>>> chmod 4655 /usr/bin/cat
+>>> ls -l /usr/bin/cat
+The output is "-rwSr-xr-x" here S is capital since the owner doesnt have execution rights which means set user ID on execution is useless and misconfigured since we owner cant even execute it
+we can fix it by
+>>> chmod u+x /usr/bin/cat
+>>> ls -l /usr/bin/cat
+Now it is fixed. Also the setting is highlighted in red because it is a dangerous setting since other users can inherit owner priveledges which cant be harmful to system security.
+>>> chmod u-s /usr/bin/cat
+>>> ls -l /usr/bin/cat
+Now we restored system security
+
+We can repeat the same for set group ID which gives the user execute permissions inhereted by the group permissions
+>>> chmod g+s /usr/bin/cat
+>>> ls -l /usr/bin/cat
+the permission vector looks like this "rwxr-sr-x", where the x in group is replaced with s.
+
+We can repeat the same for sticky bit
+>>> chmod o+t /usr/bin/cat
+>>> ls -l /usr/bin/cat
+the permissions vector looks like this "rwxr-sr-t" where the x for others is replaced with t.
+
+We can remove the execute permissions for group and others which will lead to a misconfigure since now these settings will become useless
+>>> chmod go-x /usr/bin/cat
+>>> ls -l /usr/bin/cat
+the permissions vector looks like this "rwxr-Sr-T" where the capital S and capital T indicate the there are no execute rights for the group and others itself.
+
+We can add sticky bit by chmod too
+>>> chmod 1755 /usr/bin/cat
+>>> ls -l /usr/bin/cat
+We can add set group id bit with chmod too
+>>> chmod 2755 /usr/bin/cat
+>>> ls -l /usr/bin/cat
+We can add set user id bit with chmod too
+>>> chmod 4755 /usr/bin/cat
+>>> ls -l /usr/bin/cat
+Or we can make any combination, for example add user and group id but no sticky bit = 110 = 6
+>>> chmod 6755 /usr/bin/cat
+>>> ls -l /usr/bin/cat
+
+>>> chmod 755 /usr/bin/cat
+Reset it to default rights
+
+>>> chown :users /opt/
+change attached group of opt to users
+>>> chmod g+w /opt/
+>>> ls -al /opt/
+We give the group write priveledges
+>>>user1>>> touch /opt/something
+>>>user1>>> stat /opt/something
+now user1 is able to create file inside /opt/
+>>> chmod g+s /opt/
+>>>user1>>> touch /opt/something2
+we set group id on the /opt/ folder and now make a new file in this dir as user1
+>>>user1>>> ls -l /opt/
+We can see the difference in group, something has user1 group, and something2 has users group since it is inhereted.
+
+Set user id bit is useless in case of directory, even if we set user id bit on the /opt/ folder and create a new file inside it as user1, the file will still not be owned by root and will be owned by user1
+>>> chmod u+s /opt/
+>>>user1>>> touch /opt/something3
+>>>user1>>> ls -l /opt/
+as we can see, the owner is still user1 for something3
+
+>>> find /etc/ -perm 000
+find all files inside /etc/ dir where the permissions are 000
+>>> find /bin/ -perm 755
+find all files inside /bin/ dir where the permissions are 755
+>>> find /bin/ -perm -4000
+find all files inside /bin/ dir where the set user id bit is seelcted. Note we can use "-perm 4000" since this means all files with exactly 4000 permission, -4000 means set user id  bit is on and other permissions can be anything.
+>>>find / -perm /6000 -user root
+Find all files where root is owner and the rights are 6000
+
+ACL - Access Control Lists - its a more flexible permissions mechanism for file systems
+>>> getfacl /opt/something
+>>> ls -l /opt/something
+Compare them
+
+>>> getfacl /opt/something2
+>>> ls -l /opt/something2
+>>> chmod g-w /opt/something2
+>>> getfacl /opt/something2
+as we can see we have 3 basic groups and their permissions
+>>> setfacl -m user:user2:rw /opt/something2
+>>> getfacl /opt/something2
+user::rw-
+user:user2:rw-
+group::r--
+mask::rw-
+other::r--
+Now we can see we have more than 3 basic permission groups, the mask has also appeared.
+>>> ls -l /opt/something2
+"rw-rw-r--+" we get this which means, users mentioned have the second batch of permissions atleast - rw-. We also see a + sign which indicates there exists some ACL entries which shows the priveledges in a more detailed format.
+
+We can add group wise ACL entries as well
+>>> setfacl -m group:games:rwx /opt/something2
+>>> getfacl /opt/something2
+
+We can manipulate the mask as well
+>>> setfacl -m mask:r /opt/something2
+>>> getfacl /opt/something2
+We can also use u instead of user, g instead of group and m instead of mask
+
+We can avoid recalculating the mask with -n 
+>>> setfacl -n -m g:root:rw /opt/something2
+>>> getfacl /opt/something2
+
+We can delete all the entries with -b
+>>> setfacl -b /opt/something2
+>>> getfacl /opt/something2
+>>> ls -l /opt/something2
+The plus is removed when we run ls -l as well
+
+We can delete a particular entry as well with -x. First we add a new entry and then delete it
+>>> setfacl -m u:root:rw /opt/something2
+>>> getfacl /opt/something2
+>>> setfacl -x u:root /opt/something2
+>>> getfacl /opt/something2
+
+Setting default rights for a dir
+>>> getfacl /opt/
+>>> setfacl -m g:games:rw /opt/
+>>> getfacl /opt/
+>>> setfacl -m d:g:games:rw /opt/
+>>> getfacl /opt/
+Creating a new file as user1 in opt
+>>>user1>>> cd /opt/
+>>>user1>>> touch newfile
+>>> getfacl /opt/newfile
+As we can see this new file inhereted the default rights
