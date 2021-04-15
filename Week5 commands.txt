@@ -173,5 +173,81 @@ Now we see /home is attached to enc-home
 Now we need to edit the crypttab configuration file. We simply need to change none to /key. Image shown in main PDF.
 >>> mcedit /etc/crypttab
 remove none and put /key and change encypted-home to enc-home. Quit and save with F10.
-NOW REBOOT
--23:05
+NOW REBOOT, now we wont be asked for a password since the password file is connected to the system. So we can directly use putty.
+
+>>> username: root
+>>> password: INBMA0634L
+>>> lsblk -f
+everything is correctly configured
+
+Now we add a new drive to the virtualmachine, we have to do this in the virtualbox setting. The machine must be turned off before this.
+Select the virtual machine -> Settings -> Storage -> Controller: SATA -> Adds hard disk -> create -> Next -> Next -> 8MB -> create -> Select the drive from non attached segment -> choose -> OK
+
+We will use this as a "flashdrive". The users who insert this flashdrive are the ones who are able to use the machine.
+Open a new putty terminal
+>>> username: root
+>>> password: INBMA0634L
+>>> lsblk -f
+We can see it appears as sdb
+
+>>> fdisk /dev/sdb
+>>> n 
+>>> PRESS ENTER 4 TIMES FOR DEFAULT SETTINGS 
+>>> p 
+>>> n
+>>> lsblk -f
+it shows up, now we attach a file system to it
+>>> mkfs.ext2 /dev/sdb1
+>>> lsblk -f 
+Now we make a dir called keys and change its rights
+>>> mkdir /keys
+>>> chmod 000 /keys
+>>> lsblk -f
+now copy the UUID of sdb1 by simply selecting it
+and now we need to edit the fstab config file and add this UUID to it, images shown in main PDF, add the file system ext2, the defaults and 00. Save and quit with F10.
+
+>>> mount /keys/
+>>> lsblk -f
+>>> mount -o remount,rw /keys/
+>>> mv /key /keys/
+>>> mount -o remount,ro /keys/
+now we mount keys dir. First we change it to read write mode and then move /key to this. Then we re change it to read only mode.
+We can find this key dir by
+>>> ls /keys/
+>>> cat /keys/key
+ls shows that its there inside /keys/ dir and cat shows us the content which is a string "secret key" since we are the root user.
+we need to reconfigure the crypttab file since we moved the key. The final outcome is shown as an image in the main PDF.
+>>> mcedit /etc/crypttab
+change /key to /keys/key
+save and exit with F10
+REBOOT
+Now since the drive it attached we are be able to login without any issues, but if we remove this drive then it will not.
+>>> username: root
+>>> password: INBMA0634L
+>>> lsblk -f
+We can see that all partitions including encrypted ones are showing
+
+Now we will remove the drive (its like removing the password usb drive) and then try to restart the machine.
+Go to virtual box -> select the virtual machine -> settings -> storage -> Select the disk which contains is the usb drive (it must be under Controller:SATA) -> click on the red cross on the bottom -> OK
+Now bootup the machine
+The machine waits for the encrypted file for a long time and finally asks us to boot with default mode, we continue with "Ctrl+D" but the machine still doesnt boot. So we shut down the machine.
+Now we reattach the device which stores the password.
+Go to virtualbox -> select the virtual machine -> settings -> storage -> Controller:SATA -> Adds hard disk -> Not attached -> Select the 8MB "usb" drive -> Choose -> OK
+Now the system boots up without any issues
+
+If we want to use a device without the presence of the password usb drive, we will have to configure a "No Fail" option in the fstab configuration file. We still will not be able to see or work with any encrypted directories.
+To do this, connect to the machine with putty
+>>> username: root
+>>> password: INBMA0634L
+>>> mcedit /etc/fstab
+add "nofail" after "defaults" in /home and /keys. This is shown as an image in the main PDF.
+Now we reboot. 
+
+Now we remove the attached usb drive.
+Go to virtual box -> select the virtual machine -> settings -> storage -> Select the disk which contains is the usb drive (it must be under Controller:SATA) -> click on the red cross on the bottom -> OK
+Now we reboot the virtual machine
+it will take some time since the system is waiting for the usb drive, since there is a nofail option the boot will continue.
+>>> username: root
+>>> password: INBMA0634L
+>>> lsblk -f
+as we can see the /home and /key directories do not appear but we can still use the system.
