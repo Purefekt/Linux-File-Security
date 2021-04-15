@@ -1,0 +1,177 @@
+Week5 commands [Veer Singh]
+
+>>> username: root
+>>> password: INBMA0634L
+
+We will make a loop device. It is a virtual harddrive which is mapped to a file in the file system. Basically this file can be accessable as a block device.
+
+>>> lsblk
+>>> dd if=/dev/zero of=/loop-content-0 bs=4096 count=1024
+>>> stat /loop-content-0
+the dd command lets use copy files. here we copy contents of the special zero file to the new output file called loop-content-0. the block size will be 4096 and we will have 1024 of these blocks.
+We can see the size which is 4MB (4096*1024)
+
+>>> losetup -f
+the losetup command is used to manage loop devices.
+
+>>> losetup -f /loop-content-0
+>>> lsblk
+we can see that loop0 shows up in block devices
+
+>>>  mkfs.ext2 /dev/loop0
+>>> lsblk -f
+we create a file system on loop0. this file system is ext2, this file system is never empty and creates a "lost+found" dir automatically. we can check the file system with the lsblk -f command, it also has a unique identifier.
+
+>>> mkdir /mnt/loop0; mount /dev/loop0 /mnt/loop0
+>>> lsblk -f
+>>> ls /mnt/loop0
+now we mount it. We can see it has a mountpoint and we can also see it contains a "lost+found" directory.
+
+>>> cat >/mnt/loop0/secret.txt
+>>> PIN CODE: 1234
+>>> ctrl+c 
+>>> chmod 000 /mnt/loop0/secret.txt
+>>> stat /mnt/loop0/secret.txt
+We create a file with some text in it and change the permissions so no one can see it, we can confirm the rights with the stat command.
+>>> mcview /loop-content-0
+anyone can still use this and if he/she knows how the ext2 system works can find the text of the secret.txt file even if the permissions are not granted. Which means if someone has physical access to a disk, then the permissions do not matter. This is why we use an ENCRYPTED FILE SYSTEM.
+
+We create another loop device for this
+>>> dd if=/dev/zero of=/loop-content-1 bs=4096 count=20240
+>>> losetup -a
+>>> losetup -f /loop-content-1
+>>> losetup -a
+Now we can see the new loop device shows up
+
+We will use an external package (software) to encypt the file
+>>> dnf install cryptsetup
+the dnf package manager helps us install this package
+
+>>> cryptsetup luksFormat /dev/loop1
+>>> YES
+>>> INBMA0634L
+>>> INBMA0634L
+>>> lsblk -f
+We install the encypted file system on loop1 and then set INBMA0634L as the password. We can run the lsblk command to see it.
+
+>>> cryptsetup luksOpen /dev/loop1 encrypt1
+>>> INBMA0634L
+Makes the file open to users with the password
+>>> lsblk -f
+we can see encrpt1 shows under loop1
+
+>>> mkfs.ext2 /dev/mapper/encrypt1
+>>> mkdir /mnt/loop1
+>>> mount /dev/mapper/encrypt1 /mnt/loop1/
+>>> ls /mnt/loop1/
+>>> lsblk -f
+now we setup the file system on encrypt1 as ext2 and mount it to loop1. Again we can see we get an automatically created "lost+found" file.
+
+>>> cat >/mnt/loop1/secret.txt
+>>> PIN CODE:1234
+>>> ctrl+c
+>>> mcview /loop-content-1
+Now even if a person has physical access to the drive, the content of this file will not be available since it is in an encrypted form.
+
+
+We can also use a password file instead of a password
+>>> dd if=/dev/zero of=/loop-content-2 bs=4k count=10k
+>>> losetup -f /loop-content-2
+>>> losetup -a
+>>> echo secret password >/loop-key-2
+>>> chmod 000 /loop-key-2
+>>> cryptsetup luksFormat /dev/loop2 --key-file /loop-key-2
+>>> YES
+>>> cryptsetup luksOpen /dev/loop2 encrypt2 --key-file /loop-key-2
+>>> mkfs.xfs /dev/mapper/encrypt2
+>>> lsblk -f
+We create a new file under loop2 with xfs file system on it. the permissions are given to nobody 000.
+
+we encrypt the home directory now, the system will ask a password on boot. We create a new partition for it.
+>>> fdisk /dev/sda
+>>> p 
+shows the partitions
+>>> n 
+to create a new partitions
+>>> p 
+to create primary partition (this is after n)
+>>> PRESS ENTER TWICE - THIS IS NOT A COMMAND, BUT AN INSTRUCTION
+>>> p
+to check partitions again
+>>> w
+to save settings
+>>> lsblk -f
+Now we can see sda4
+
+>>> cryptsetup luksFormat /dev/sda4
+>>> INBMA0634L
+>>> INBMA0634L
+>>> lsblk -f
+we can see the changes. Now sda4 is ready to store encrypted file systems
+
+>>> cryptsetup luksOpen /dev/sda4 encrypted-home
+>>> INBMA0634L
+>>> mkfs.ext2 /dev/mapper/encrypted-home
+>>> umount /home/
+>>> mount /dev/mapper/encrypted-home /home/
+>>> lsblk -f 
+we mount home dir to the encrypted-home inside the encrypted sda4 partition
+>>> reboot
+This will restart the vm, which means the remote putty connection will stop. Open connection again.
+
+>>> username: root
+>>> password: INBMA0634L
+
+Now we need to edit a configuration file which will run the encrypted home file on boot.
+
+>>>mcedit /etc/crypttab
+this will open a mc window, inside this file (Image also shown in main PDF):
+>>> encrypted-home
+>>> TAB (the key)
+>>> /dev/sda4
+>>> TAB
+>>> none
+>>> TAB
+>>> luks
+Now save this file with F10. Now when we run this machine it will ask for a password on boot. Turn off the virtual machine and open it in the virtualbox, use the normal mode since we wont be able to enter it using putty. A password screen will open as shown in the main PDF. After entering the password we can use putty.
+
+>>> lsblk -f
+>>> mount /dev/mapper/encrypted-home /mnt
+>>> ls /mnt
+>>> lsblk -f
+we can also mount it to the mnt folder
+
+Now we want to automatically open this encrypted drive and make it available in the home directory. For this we need to change another configuration file which contains the default mounting points. This means the UUID of encrypted home should appear in sda2.
+So we copy the UUID of encrypted-home by selecting it:
+>>> mcedit /etc/fstab
+delete the UUID where we see /home and paste the UUID we copied and change the file system to ext2. This is shown in the image in man PDF. (To paste in midnight commander user shift+right click)
+>>> umount /home/
+>>> umount /mnt/
+>>> mount /home/
+>>> lsblk -f 
+/home is now under encypted-home
+
+Now we create a key file
+>>> umount /home/
+>>> cryptsetup luksClose encrypted-home
+>>> echo secret key >/key
+>>> chmod 000 /key
+>>> cryptsetup luksFormat /dev/sda4 --key-file /key
+>>> YES
+>>> cryptsetup luksOpen /dev/sda4 enc-home --key-file /key
+>>> lsblk -f
+>>> mkfs.xfs /dev/mapper/enc-home
+>>> lsblk -f
+Now copy the UUID of enc-home by simply selecting it in the terminal
+>>> mcedit /etc/fstab
+this will open a midnight commander window, now delete the UUID where we see /home and paste the UUID we just copied. Also change the file system to xfs. This is shown in the main PDF as images.
+We can test if this works by
+>>> mount /home/
+>>> lsblk -f 
+Now we see /home is attached to enc-home
+
+Now we need to edit the crypttab configuration file. We simply need to change none to /key. Image shown in main PDF.
+>>> mcedit /etc/crypttab
+remove none and put /key and change encypted-home to enc-home. Quit and save with F10.
+NOW REBOOT
+-23:05
