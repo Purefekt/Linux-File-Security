@@ -1,0 +1,94 @@
+Week7 commands [Veer Singh]
+
+We encrypt the home directory again.
+Add a new device to the virtual machine like a usb drive.
+VirtualBox -> Select the machine -> Settings -> Storage -> Controller: SATA -> Adds hard disk -> Create -> Next -> Next -> 8MB -> Create -> Select the newly created disk from the Not attached segment -> Choose -> OK
+
+Start the virtual machine as a headless start, and connect with putty
+>>> username: root
+>>> password: INBMA0634L
+>>> lsblk -f
+The usb drive appears as sdb
+
+Adding file system to the usb drive
+>>> mkfs.ext2 /dev/sdb
+>>> lsblk -f
+
+Adding mounting point to sdb
+>>> mkdir /keys
+>>> mount /dev/sdb /keys/
+>>> lsblk -f 
+
+>>> dd if=/dev/random of=/keys/home.key count=256 bs=1
+we copy 256 random bytes to this newly created file home.key inside the /keys/ directory
+>>> mcview /keys/home.key
+we cans see it contains random bits
+
+>>> dnf install cryptsetup
+>>> lsblk -f
+>>> umount /home/
+>>> cryptsetup luksFormat /dev/sda2 --key-file=/keys/home.key
+>>> YES
+>>> lsblk -f 
+install crypt file system on sda2, for this we need to install the cryptsetup package
+
+>>> cryptsetup luksOpen /dev/sda2 home --key-file=/keys/home.key
+>>> lsblk -f 
+>>> mkfs.xfs /dev/mapper/home
+>>> lsblk -f 
+>>> mount /dev/mapper/home /home
+>>> lsblk -f 
+
+Now we need to edit the fstab config file
+First copy the UUID of /home by simply selecting it
+>>> lsblk -f 
+>>> vi /etc/fstab
+Navigate to the /home and remove the UUID currently there and paste the UUID we copied, since we are using vi, press "i" key to enter edit mode. Once pasted, use "Esc" key to exit edit mode and then enter ":wq" to save and exit.
+
+Now we want to add a new record to this file since we need to automaticallt manage the partition which contains the keys.
+>>> vi /etc/fstab
+Copy thr last line and paste it, then save and exit the vi editor.
+Now run lsblk -f and copy the UUID of the /keys. Then open the fstab again in vi editor and paste this UUID in the last line which we just created in the previous step. Also remove none and add /keys, and change the file system to ext2. Also append nofail to defaults in /home and /keys and append read only ro to defaults,nofail in /keys. SEE THE IMAGE IN MAIN PDF TO SEE HOW EXACTLY THIS FILE LOOKS. Save and exit.
+>>> lsblk -f
+>>> vi /etc/fstab
+
+>>> umount /home/
+>>> umount /keys/
+>>> mount /keys
+>>> mount /home
+Since we changed the fstab file, it automatically knows where to mount them
+
+Now we need to edit the crypttab file
+>>> vi /etc/crypttab
+This file is empty currently.
+Add this to the file -> "home /dev/sda2 /keys/home.key luks". It should looks like the image in the main PDF.
+
+Now reboot the virtualmachine
+>>> reboot
+
+Try to reconnect with putty
+>>> username: root
+>>> password: INBMA0634L
+>>> lsblk -f
+We see the /home and /keys are showing up. Now we poweroff the machine and remove the usb drive. This will show up what happens when someone tries to use the device without the password usb drive.
+>>> poweroff
+
+To remove the usb drive
+VirtualBox -> select the machine -> Settings -> Storage -> Select the 8MB usb drive (it must be under Controller:SATA) -> Click on the red cross on the bottom -> OK
+Now start the machine in normal mode (not headless). It will take longer than usual since the machine is looking for the password usb drive. Once the login page shows up connect with putty and login.
+>>> username: root
+>>> password: INBMA0634L
+>>> lsblk -f
+Now we see the /home doesnt show up. This means this user cannot access the encrypted parts of the system. Now turn off the system.
+>>> poweroff
+
+Now we re attach the password usb. To do this 
+VirtualBox -> select the machine -> Settings -> Storage -> Controller:SATA -> Adds Hard Disk -> Select the 8MB usb drive from the Not Attached segment -> Choose -> OK
+Now start the machine (headless start)
+Connect with putty
+>>> username: root
+>>> password: INBMA0634L
+>>> lsblk -f
+Now the /home and /keys shows up.
+
+-----NEW TOPIC---
