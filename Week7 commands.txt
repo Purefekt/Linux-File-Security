@@ -92,3 +92,183 @@ Connect with putty
 Now the /home and /keys shows up.
 
 -----NEW TOPIC---
+Open the machine
+>>> username: root
+>>> password: INBMA0634L
+
+add a new user and add that user to a group
+>> useradd user1
+>>> usermod -G users user1
+>>> id user1
+>>> grep user1 /etc/passwd
+grep commands prints all search results of the word user1 in this case in the given dir, /etc/passwd in this case.
+>>> passwd user1
+>>> 1234
+>>> 1234
+set password 1234 for user1
+
+>>> cat /etc/shadow
+contents of the shadow file which has the users and their encrypted passwords
+>>> passwd -S user1
+Some more info about the password of user1
+>>> passwd -S chrony
+there exists a user chrony which we can see in the shadow file. As we can see when we get more info about the password for chrony user we get "Password locked" which means this user doesnt have a password and cant login with the help of a password
+>>> passwd -S mail
+Here we see "Alternate authentication scheme in use" which means it uses some other authentication method other than a password.
+
+Login as user1 in a duplicate putty session
+>>>user1>>> username: user1
+>>>user1>>> password: 1234
+
+Password locking
+>>> grep user1 /etc/shadow
+>>> passwd -l user1
+>>> grep user1 /etc/shadow
+We use the grep command to see the search result, basically the password of user1, then we use passwd -l to lock the password of user1. When we run the grep command again we see that now the output we have "!!" after user1. This means that the password is locked. We can check the status with passwd -S.
+>>> passwd -S user1
+Now if we open a duplicate putty session and try to login as user1, we are not able to login.
+>>>user1>>> username: user1
+>>>user1>>> password: 1234
+"Access Denied"
+
+Now we unlock the user1 password with the passwd -u command.
+>>> passwd -u user1
+Now if we open a duplicate putty session, we are able to login as user1
+>>>user1>>> username: user1
+>>>user1>>> password: 1234
+Successful login
+
+This way we can temporarily deny a user access by locking and then unlocking as the root user.
+
+
+>>> chage -l user1
+chage is used to modify password expiry information.
+>>> chage -d 2021-03-01 user1
+>>> chage -l user1
+We can change the last password change date this way
+>>> chage -M 10 user1
+>>> chage -l user1
+We can change the maximum number of days between password change this way. In this command we change it to 10, this also changes the password expiry date thus the system will ask user1 to change the password upon next login.
+Open a new duplicate putty session and login as user1
+>>>user1>>> username: user1
+>>>user1>>> password: 1234
+Now the system asks me to change the password immediately.
+>>>user1>>> 1234
+>>>user1>>> INBMA0634L
+>>>user1>>> INBMA0634L
+The window will close
+Now if we check the chage -l on root we see that the last password change date has been changed.
+Now if we open a duplicate putty session and login as user1, we have to provide the new password and it works fine.
+>>>user1>>> username: user1
+>>>user1>>> password: INBMA0634L
+
+We can also manipulate the number of inactive days of a password.
+>>> chage -d 2021-03-01 user1
+>>> chage -l user1
+Now we change the last password change to 1 March 2021, as we can see the password expires is now 11 March 2021.
+>>> chage -I 5 user1
+>>> chage -l user1
+Now we change password inactive to 16 March 2021.
+Now we open a duplicate putty session and try to login as user1
+>>>user1>>> username: user1
+>>>user1>>> password: INBMA0634L
+The system immediately closes.
+Now we change the password inactive day to 15 days
+>>> chage -I 50 user1
+>>> chage -l user1
+As we can see now the password inactive date 30 April 2021. NOTE: This was done since today is 17 April and we need a date where the password has expires (17 april is after 11 March) but the inactive password date has not been crossed (17 april is before 30 april)
+Now we open a duplicate putty session and try to login as user1
+>>>user1>>> username: user1
+>>>user1>>> password: INBMA0634L
+We are now immediately asked to change the password
+>>>user1>>> INBMA0634L
+>>>user1>>> INBMA6969420
+>>>user1>>> INBMA6969420
+The window closes but now we can login with this new password as user1
+>>> chage -l user1
+Now we can see the last password change date is now 17 April (todays date) and the password will expire on 27 April but we will still be able to change it till Jun 16 since that is the password inactive date.
+
+We can change the min number of days between password change
+>>> chage -m 5 user1
+>>> chage -l user1
+Now we create a duplicate putty session and try to login as user1
+>>>user1>>> username: user1
+>>>user1>>> password: INBMA6969420
+Now if we try to change the password as user1
+>>>user1>>> passwd
+>>>user1>>> INBMA6969420
+Now we get a message saying we must wait longer to change the password, since the min number of days between password change is 5.
+
+We can also change the account expiration date
+>>> chage -E 2021-03-01 user1
+>>> chage -l user1
+Here we set the account expiration date to 1 March 2021, since today is 17 April 2021, this means user1 account has expired, if we open a duplicate putty session and try to login as user1 the window will close itself.
+>>>user1>>> passwd
+>>>user1>>> INBMA6969420
+
+Summary: We use Password inactive and max number of days between password change the most.
+
+-----NEW TOPIC---
+>>> useradd user2
+>>> passwd user2
+>>> 1234
+>>> 1234
+>>> chage -l user2
+>>> passwd -S user2
+Make a new user2 and set a password for it, also see some basic info like account expiry status and password status
+
+Now open a duplicate putty session and login as user2
+>>>user2>>> username: user2
+>>>user2>>> password: 1234
+
+LINKS 
+We can create hard links to a resource in linux
+>>> ls -lai
+We see all files in the pwd 
+lets say we want to create a hard link to the anaconda-ks.cfg file
+>>> ln anaconda-ks.cfg anaconda
+>>> ls -lai
+We see a new file called anaconda but all its properties including the inode is the same exact as anaconda.ks-cfg
+>>> chmod +r anaconda
+>>> ls -lai
+As we can see this right change on anaconda made a change to anaconda.ks-cfg
+
+We can also create a softlink in linux
+>>> ln -s anaconda anaconda.sl
+>>> ls -lai
+We create a softlink on anaconda with a file name called anaconda.sl
+
+The difference between softlink and hardlink is that it has a different id since it can be located anywhere, its size is also only 8 byte which is just the amount of the name of the file. The access rights for a softlink are only based on the settings of the referenced object and not this file itself.
+We can delete the anaconda file, the anaconda.sl file still exists but it is now a deadlink, shown in red.
+>>> rm anaconda
+>>> y 
+>>> ls -lai
+If we create a new file called anaconda, this deadlink will become a live softlink again
+>>> touch anaconda
+>>> ls -lai
+
+Now there is a binary called poweroff
+>>> which poweroff
+>>> stat /usr/sbin/poweroff
+As we can see this is a softlink to ../bin/systemctl
+We can see the true rights of this file with
+>>> stat -L /usr/sbin/poweroff
+Now we will remove the read and execute priveledges of this binary
+>>> chmod -rx /usr/sbin/poweroff
+>>> chmod u+x /usr/sbin/poweroff
+>>> stat -L /usr/sbin/poweroff
+This means the user2 is not able to poweroff
+We can test this by going to user2 window
+>>>user2>>> /usr/sbin/poweroff
+We get permission denied
+
+But we can use the Sudo command to give root priveledges to other users.
+We need to edit a config file
+>>> visudo
+Navigate to the line "Allow root to run any commands anywhere" and insert the following below root
+"user2 localhost=(root) /usr/sbin/poweroff" (SEE IMAGE IN MAIN PDF)
+save and exit
+Now we can go to user2 and try to execute the poweroff binary
+>>>user2>>> sudo /usr/sbin/poweroff
+>>>user2>>> 1234
+This turns off the computer and putty closes itself.
