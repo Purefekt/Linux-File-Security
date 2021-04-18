@@ -166,4 +166,55 @@ This will open a new putty terminal, we will be logged in as veer, authenticated
 >>>veer>>> password: 1234
 And we are able to login as veer.
 
--24:03
+>>> passwd -S veer
+>>> grep veer /etc/shadow
+We see that the password is locked for veer and veer doesnt have a password which means the user veer cannot login via a password
+
+lets say we set an expiration date for the user account veer
+>>> chage -E 2021-01-01 veer
+>>> chage -l veer
+Now if we duplicate the veer putty session
+>>>veer>>> password: 1234
+The window closes automatically since the account already expired on Jan 2 2021.
+
+>>> chage -M 10 veer
+>>> chage -d 2021-01-01 veer
+>>> chage -E -1 veer
+>>> chage -l veer
+Now we change the max number of days b/w password change to 10, change last password change date to Jan 1 2021, change the expiration to never.
+Now try to connect to putty with veer using ssh key.
+Open putty -> Host Name: localhost -> Port: 10022 -> Category -> SSH -> Auth -> Browse -> Navigate to the "private-key-for-veer" and select it -> Open -> Categor -> Data -> Auto-login username -> veer -> Open 
+This will open a new putty terminal, we will be logged in as veer, authenticated with the private key, the system now asks us the passphrase we set when we generated the private key
+>>>veer>>> password: 1234
+Now the system tells us to change the password
+NOTE: even tho veer doesnt have a password, the password settings using "chage" affect it.
+
+CLOSE ALL PUTTY TERMINALS
+
+---------Logging in without knowing system password with physical access to the system-----------
+Remove the last virtual machine and import a new one. Start this new vm in normal mode, as soon as the boot screen appears use the top or bottom array key to pause it, here we see 2 options for CentOS Stream (shown as an image in main PDF)
+Select the first option and press the 'e' key to enter config file editor. (Keep in mind since we are using the vm directly it captures the mouse and keyboard and we need to press the default key 'right control' to free the mouse and keyboard, we can set this key to anything in the virtualbox settings)
+We need to edit this file, in the 5th line, before "ro" we need to add "rd.break" which breaks the boot process and forces us to use the emergency rescue system.(Shown as image in main PDF) Press control+x to start with the new settings. This opens the rescue system and we can use this to use this computer. (Note: not all operating systems have this)
+>>> ls -la
+(Show as an image in main PDF)
+Notice not all files are available, like sda1, we can use the mount command to see where it is
+>>> mount
+We see that it is in the /sysroot directly, this contains the files to overwrite the password
+>>> cat /sysroot/etc/shadow
+>>> mount -o remount,rw /sysroot/
+>>> mount 
+Now we are able to write any file in the root directory
+>>> chroot /sysroot/
+>>> ls -la
+Now we are able to use the passwd command to change the password of root
+>>> passwd
+>>> 1234
+>>> 1234
+>>> touch /.autorelabel
+>>> exit
+>>> reboot
+Now the machine we restart, again on boot use the top or bottom arrow keys. Select the first option and enter. (This will take some time, it will also reboot once)
+>>> username: root
+>>> password: 1234
+
+This is why it is very important to encrypt sensitive data since anyone with physical access can change the root password and login to the machine.
