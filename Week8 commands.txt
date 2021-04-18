@@ -1,0 +1,169 @@
+Week7 commands [Veer Singh]
+
+>>> username: root
+>>> password: INBMA0634L
+
+----- KEY GENERATOR --- 
+
+>>> ssh-keygen
+automatically creates a key with defaults
+PRESS ENTER 3 TIMES
+2 new files are created, "id_rsa" is the private key and "id_rsa.pub" is the public key.
+
+>>> cat /root/.ssh/id_rsa
+print the private key, we can copy this and move the key from one system to another
+>>> cat /root/.ssh/id_rsa.pub
+prints the public key, this is shorter than the private key. We are able to generate the public key from the private key.
+We use these both keys together for encryption.
+Public key - Encryption
+Private key - Decryption
+(anyone with the public key can encrypt a message but only the person with the private key can decrypt the message)
+
+Now we have to publish the public key and keep the private key secret.
+
+We can create a custom key name and a custom type with the -f and -t commands respectively.
+>>> ssh-keygen -f example -t RSA
+>>> 1234
+>>> 1234
+Now we can see example and example.pub files appear which are the private and public keys.
+
+We can make a key with no password with this commands
+>>> ssh-keygen -N '' -f example -t RSA
+>>> y (Since we are overwriting an already existing example key)
+
+There is an authorised key file for every user. If another users public key is stored in a users authorised key file then that person can login as that user with the corresponding private key.
+Every user has a .ssh hidden dir where this authorised key file is stored.
+>>> cd .ssh
+>>> ll
+Right now it only has the public and private keys we generated previously
+>>> cat id_rsa.pub >authorized_keys
+>>> ll
+We copy the contents of the public key to a new file
+>>> chmod 600 authorized_keys (if this was 666 then the system will reject this authorized_keys file)
+>>> ll
+To test it we copy the contents of the id_rsa private key
+>>> cat id_rsa
+Simple highlight this in the terminal to copy everything and paste it in private.txt file on the computer
+Putty cannot use this type of file format so we need to convert it, we use PuTTygen which comes with the PuTTy package.
+Simple search for puttygen and open it.
+Load -> Change to all files -> Navigate to private.txt -> select it -> open -> Ok (See image in main PDF)
+Notice we get a public key which is the same as the public key id_rsa.pub.
+Now to save this
+-> Save private key -> Yes -> Filename - "new-private-key" -> Save
+This will create a .ppk file which can be used by putty. (See image in main PDF)
+Now to use this key to login
+Open putty -> Host Name: localhost -> Port: 10022 ->Category: SSH -> Auth -> Browse -> Navigate to the .ppk file -> Open -> Open
+This will open a putty terminal asking for the username, once we type "root" we will directly be logged in without the need for a password.
+
+We cal also add multiple keys to the authorized_keys file.
+>>> cat /root/example.pub >> authorized_keys
+>>> vi authorized_keys
+>>> :set no wrap
+Using this vi command we can see now there are 2 keys and we can login via the example key as well.
+>>> :q
+
+Now we will create 3 users
+>>> useradd ssh-user-1
+>>> useradd ssh-user-2
+>>> useradd ssh-user-3
+>>> passwd ssh-user-1
+>>> 1234
+>>> 1234
+>>> passwd ssh-user-2
+>>> 1234
+>>> 1234
+>>> passwd ssh-user-3
+>>> 1234
+>>> 1234
+
+Lets say user1 knows the password for user2 and user3 but user1 wants to login with ssh key and not password.
+Open a duplicate putty session and login as user1
+>>>ssh-user-1>>> ssh-user-1
+>>>ssh-user-1>>> 1234
+Now we create key
+>>>ssh-user-1>>> ssh-keygen
+PRESS ENTER 3 TIMES (to skip setting password, in practice we must set a password)
+
+Now lets try to login to user2 from user1 with password
+>>>ssh-user-1>>> ssh ssh-user-2@localhost
+>>>ssh-user-1>>> yes 
+>>>ssh-user-1>>> password: 1234
+And we are able to login
+>>>ssh-user-1>>> exit
+We can also execute commands as another user with this method
+>>>ssh-user-1>>> ssh ssh-user-2@localhost id
+>>>ssh-user-1>>> password: 1234
+Here we get the id details of user2
+
+Now we will configure user2 so that user1 can login via ssh without password (while having the ssh private key)
+>>>ssh-user-1>>> ssh ssh-user-2@localhost 'mkdir .ssh'
+>>>ssh-user-1>>> password: 1234
+>>>ssh-user-1>>> ssh ssh-user-2@localhost 'chmod 700 .ssh'
+>>>ssh-user-1>>> password: 1234
+>>>ssh-user-1>>> ssh ssh-user-2@localhost 'cat >>.ssh/authorized_keys ' < .ssh/id_rsa_pub
+NOTE: the first .ssh is the .ssh dir inside user2 and the second .ssh is the .ssh dir inside user1. Here we are copying the contents of the public key of user1 to the authorized_keys of user2
+>>>ssh-user-1>>> password: 1234
+>>>ssh-user-1>>> ssh ssh-user-2@localhost 'chmod 600 .ssh/authorized_keys'
+>>>ssh-user-1>>> password: 1234
+NOW we do not need password everyime
+>>>ssh-user-1>>> ssh ssh-user-2@localhost id
+It simply works since the public key of user1 is in authorized_keys of user2
+
+If we have multiple keys then we use the "i" command to specify which key we are Using
+>>>ssh-user-1>>> ssh -i .ssh/id_rsa ssh-user-2@localhost id
+This works but if we have another key and we use that key it will not work since its public key is not in the user2 authorized_keys yet.
+>>>ssh-user-1>>> ssh-keygen
+>>>ssh-user-1>>> other-key
+PRESS ENTER 2 TIMES
+>>>ssh-user-1>>> ssh -i other-key ssh-user-2@localhost id
+>>>ssh-user-1>>> password: 1234
+This time we are again asked for the password
+We can add the public key of other-key so it works without password
+>>>ssh-user-1>>> ssh ssh-user-2@localhost 'cat >> .ssh/authorized_keys' <other-key.pub
+>>>ssh-user-1>>> ssh -i other-key ssh-user-2@localhost id
+
+There is a simpler way to do this
+>>>ssh-user-1>>> ssh-copy-id ssh-user-3@localhost
+>>>ssh-user-1>>> password: 1234
+Now we can execute any commands on user3 as user1 using ssh
+>>>ssh-user-1>>> ssh ssh-user-3@localhost find
+>>>ssh-user-1>>> ssh ssh-user-3@localhost 'ls -la'
+
+---------PRACTICE -----
+TURN OFF VIRTUALMACHINE, DELETE IT AND MAKE A NEW ONE AND CONFIGURE REMOTE ACCESS
+
+Open PuTTygen -> Generate -> Key passphrase: 1234 -> Confirm passphrase: 1234 -> Save private key -> filename "private-key-for-veer" -> Save
+As we can see the we are seeing a public key in the puttygen window. This is the public key for veers private key.
+
+Now headless start on the new virtual machine and connect to putty
+>>> username: root
+>>> password: INBMA0634L
+
+Create a new user veer and configure the users ssh
+>>> useradd veer
+>>> mkdir /home/veer/.ssh
+>>> chmod 700 /home/veer/.ssh/
+>>> stat /home/veer/.ssh/
+>>> chown veer:veer /home/veer/.ssh/
+>>> stat /home/veer/.ssh/
+We create the .ssh file and change its rights to 700. Then we see that its owner is currently root so we change the owner to veer.
+Now we need to copy the public key so we go to puttygen and copy the public key from there. We paste it into the authorized_keys
+>>> cat >>/home/veer/.ssh/authorized_keys
+NOW PASTE THE PUBLIC KEY HERE 
+PRESS ENTER AND CTRL+D TO SAVE 
+>>> cat /home/veer/.ssh/authorized_keys
+We can see the contents of authorized_keys and we see the public key is here.
+
+>>> stat /home/veer/.ssh/authorized_keys
+Now we see that the owner is root and permissions is 644 so we change that to owner veer and permissions 600
+>>> chown veer:veer /home/veer/.ssh/authorized_keys
+>>> chmod 600 /home/veer/.ssh/authorized_keys
+>>> stat /home/veer/.ssh/authorized_keys
+
+Now we login as veer using the private key
+Open putty -> Host Name: localhost -> Port: 10022 -> Category -> SSH -> Auth -> Browse -> Navigate to the "private-key-for-veer" and select it -> Open -> Categor -> Data -> Auto-login username -> veer -> Open 
+This will open a new putty terminal, we will be logged in as veer, authenticated with the private key, the system now asks us the passphrase we set when we generated the private key
+>>>veer>>> password: 1234
+And we are able to login as veer.
+
+-24:03

@@ -9,4 +9,5 @@ Start with the main PDF and it will have directions on how to start any week whi
 - '>>>' means it is a command issued as a root user
 - '>>>user1>>>' means this command was issued as user1
 - '>>>user2>>>' means this command was issued as user2
+- '>>>ssh-user-1>>>' means this command was issued as ssh-user-1
 - Anything other than these means it is not a command and is some explanation
