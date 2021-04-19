@@ -1,0 +1,57 @@
+Week11 commands [Veer Singh]
+
+>>> username: root
+>>> password: INBMA0634L
+
+Generating key pair with openssl
+>>> openssl genpkey -algorithm RSA -out key.pem -pkeyopt rsa_keygen_bits:2048
+>>> openssl rsa -in key.pem -out key.pub.pem -pubout
+>>> ls -al
+Now we have a public and private key
+
+Now we create a document and sign it with a private key
+>>> echo Some text to sign. >document
+>>> cat document
+We create this file called document with the contents "Some text to sign."
+
+We will use SHA hash value for the document
+>>> openssl dgst -sign key.pem -out document.sign -sha256 document
+>>> ls -la
+we see that the document.sign file appears with exactly 256 bytes
+>>> xxd document.sign
+We can also see the encrypted data in hex format
+
+Now with the original document, and the hash value assigned to the document and the public key anyone can verify the signature
+>>> openssl dgst -verify key.pub.pem -sha256 -signature document.sign document
+We will get a Verified OK message
+
+Lets try to change the document
+>>> vi document
+We change "Some text to sign." to "Some text to sign!" in the vi editor. (Note: Use "i" to enter insert mode, "esc" to stop insert mode, ":wq" to save and quit)
+>>> cat document
+We did not generate new signature, now the verification should fail since the current document is not the one we signed
+>>> openssl dgst -verify key.pub.pem -sha256 -signature document.sign document
+We get a message Verification Failure
+
+----------------------------------
+>>> openssl pkcs8 -topk8 -in key.pem -out key.enc.pem
+>>> 1234
+>>> 1234
+>>> cat key.pem
+>>> cat key.enc.pem
+>>> openssl dgst -sign key.enc.pem -out document.sign -sha256 document
+>>> 1234
+Now we sign the new document with the "!" at the end 
+>>> openssl dgst -verify key.pub.pem -sha256 -signature document.sign document
+We get a Verified OK message
+
+The private key always stores information about the public key. We can generate a public key
+>>> openssl rsa -in key.pem -out key.2.pem
+>>> cat key.2.pem
+Copy the entire output by selecting it in the terminal.
+Paste this into a text file and name it "key.txt"
+Now open PuTTygen -> File -> Load private key -> Change filter to All Files -> Navigate to the key.txt -> Open
+Now we can see the extracted public key in the window.
+We can check its the same by
+>>> cat key.pub.pem
+57:56
