@@ -1,0 +1,136 @@
+Week10 commands [Veer Singh]
+
+>>> username: root
+>>> password: INBMA0634L
+
+>>> man openssl
+OpenSSL is an open-source command line tool that is commonly used to generate private keys, create CSRs, install your SSL/TLS certificate, and identify certificate information.
+
+>>> date >date
+>>> cat date
+create a new file and save current date information
+>>> dd if=/dev/zero of=zero bs=8 count=6
+creates a 48 bytes long file filles with zeros from the special file zero
+
+>>> cat date
+>>> xxd date
+show the contents of a file date in hexadecimal form 
+>>> xxd zero
+
+We will use the ECB (Electronic Code Block) algorithm to encrypt the file.
+>>> openssl des-ecb -in date -out date.enc -K A1234FEED12345AA
+>> ll
+>>> xxd date.enc
+we created a new encrypted file date.enc. "A1234FEED12345AA" is the key
+
+>>> openssl des-ecb -d -in date.enc -K A1234FEED12345AA
+This is to decrypt the date
+
+>>> openssl des-ecb -in zero -K A1234FEED12345AA | xxd
+Here we encrypt the zero file and simply print its encrypted contents in hex format
+Since we used a 8 byte cryptographic algorithm to encrypt the file we can see that everything is the same in this zero file. This is a weakness of this algorithm since we can know if any bytes are the same.
+
+To combat this we use the Cipher Block Chain (CBC) algorithm.
+This combines the output of the current block and previous block to make a new encyrpted block.
+>>>  openssl des-cbc -in zero -K A1234FEED12345AA -iv 1111111111111111 | xxd
+>>> openssl des-cbc -in zero -K A1234FEED12345AA -iv 2222222222222222 | xxd
+We can provide different initial vectors (iv) to get different encryptions and each element in this zero file is also encrypted differently.
+
+It is not easy to remember the keys (A1234FEED12345AA) and initial vector (2222222222222222) so we use this method to auto generate the key and iv from a password.
+>>> openssl des-cbc -in zero -k apple -p -nosalt -out zero.enc
+Here we created a new file zero.enc which contails the encrypted form of the zero file with password apple.
+This auto generation a key and an iv.
+
+If we want the key and iv to be different every time we can use this
+>>> openssl des-cbc -in zero -k apple -p -out zero.enc
+Now to know the key and iv we need the "salt" and password
+
+>>> xxd zero.enc
+Note this encrypted file is longer than normal file since it stores the salt in the encrypted document.
+>>> openssl des-cbc -d -k apple -in zero.enc -p
+we are able to see the salt, key and iv
+
+>>> openssl des-cbc -d -k apple -in zero.enc -out zero.pub
+>>> xxd zero.pub
+we are able to decrypt this file and see its contents this way.
+
+>>> openssl des-cbc -in date -k apple -out date.1 -p
+>>> openssl des-cbc -in date -K 67F1D44D1C682993 -iv 6BB6A1F3A90AE51B -out date.2 -p
+We are encrypting in 2 different ways
+>>> xxd date.1
+>>> xxd date.2
+When we see the contents we see that the data is exactly the same except date.1 has an extra first block which is the salt.
+>>> openssl des-cbc -in date -k apple -nosalt -out date.3 -p
+>>> xxd date.3
+In the last example there is no salt so the key and iv are different and thus the encryption data is also different than date.1 and date.2
+
+We can copy the salt generated for date.1 and manually enter it
+>>> openssl des-cbc -in date -k apple -S 2BD5B435790D89BC -out date.3 -p
+>>> xxd date.3
+Now we see the encrypted data is same as date.1
+
+Now we will use the TDES algorithm
+>>> openssl des-ede-cbc -in date -k apple -out date.tdes -p
+>>> xxd date.tdes
+In this format they key is longer and both the key and iv are generated from the password (apple) with the help of the salt
+Decryption works in the same way
+>>> openssl des-ede-cbc -d -in date.tdes -k apple -out date.plain -p
+>>> cat date.plain
+
+We will now use the AES algorithm. Note the previous algorithms now are depricated and now we use AES since it is much better and still fast enough.
+>>> openssl aes-128-cbc -k apple -in date -out date.aes -p
+>>> xxd date.aes
+
+We can check more about these algorithms by
+>>> man enc
+
+----------------------------------
+We can also openssl to generate key instead of keygen
+>>> date >document
+>>> cat document
+Save the current date into a file called document
+>>> openssl genpkey -algorithm RSA -out key.pem -pkeyopt rsa_keygen_bits:2048
+>>> cat key.pem
+We can see this key
+
+We can also create a smaller key (which is less secure)
+>>> openssl genpkey -algorithm RSA -out key.pem -pkeyopt rsa_keygen_bits:512
+>>> cat key.pem
+
+Now we can generate the public key from the private key
+>>> openssl rsa -in key.pem -pubout -out key.pem.pub
+>>> cat key.pem.pub
+
+Now to encrypt, since we need the public key of the recipient we need to use pubin
+>>> openssl rsautl -encrypt -pubin -inkey key.pem.pub -in document -out document.enc1
+>>> xxd document.enc1
+
+Now to decrypt
+>>> openssl rsautl -decrypt -inkey key.pem -in document.enc1
+>>> cat document
+As we can see the contents of the decrypted key is the same as the file document, thus we successfully decrypted it.
+
+Signing in encryption - i use my private key to write a message signature and the other person uses my public key to check if its really mine.
+>>> openssl rsautl -sign -inkey key.pem -in document -out document.enc2
+>>> xxd document.enc2
+to decrypt
+>>> openssl rsautl -inkey key.pem.pub -pubin -in document.enc2
+We see the correct decrypted contents of this file
+
+We can create a much bigger key
+>>> openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:4096 -out key.4096
+>>> cat key.4096
+>>> openssl rsa -in key.4096 -noout -text
+This command shows us more information about this key
+
+>>> openssl rsa -in key.4096 -pubout -out key.4096.pub
+>>> openssl rsautl -encrypt -pubin -inkey key.4096.pub -in document -out document.4096
+>>> ls -l document.enc1 document.enc2 document.4096
+In enc1 and enc2 we used a key with the size 512 bits thats why we see documents with the size 64 bytes (512 bits/8 bits = 64 bytes) but in the 4096 case we used a key of size 4096 bits thats why we see that is is 512 bytes.
+
+>>> dd if=/dev/zero of=600-zeros bs=1 count=600
+>>> openssl rsautl -encrypt -pubin -inkey key.4096.pub -in 600-zeros -out 600-zeros.enc
+We get an error bcos here this document is larger than the key
+>>> dd if=/dev/zero of=400-zeros bs=1 count=400
+>>> openssl rsautl -encrypt -pubin -inkey key.4096.pub -in 400-zeros -out 400-zeros.enc
+Now we are able to encrypt this file since here the file is 400 bytes and the key is 512 bytes
