@@ -126,3 +126,36 @@ We can change the owner to apache
 >>> stat /var/www/html/hello2.txt
 Now if we open the same link on the browser -> http://localhost/hello2.txt -> We are able to see the text 'Something' (shown as an image in the main PDF)
 This is because apache is the web server
+
+>>> ll 
+We have the document and document.sign which we created earlier.
+>>> mv document /var/www/html/
+>>> ls -l /var/www/html
+We move this to the /var/www/html/ directory
+
+>>> chown apache /var/www/html/document
+>>> chmod 600 /var/www/html/document
+>>> ls -l /var/www/html
+We change the ownership to apache and the permissions to 600. We can see that these settings are the same as hello2.txt.
+Now open the browser -> http://localhost/document -> We get a message saying we do not have the permissions (shown as an image in the main PDF) even though it is the same as hello2.txt and that works
+The reason is there are different labels used on these files 
+>>> ls -lZ /var/www/html/
+Here we can see the context information differs. Since we made the file document inside the home folder of the root user, the context is generated for that. The http service is restrictted to only those files with the "unconfined_u:object_r:httpd_sys_content_t:s0" label.
+We can turn the policy settings and then we do not have to deal with the labels, we can do this by
+>>> setenforce 0
+Now when we open the browser -> http://localhost/document -> The website opens and shows the message "Some text to sign!" which is the content of the document file. (As shown in the image in main PDF)
+We can turn it back on with 
+>>> setenforce 1
+And now when we go to http://localhost/document it again shows us a forbidden message
+
+Changing the policy is not recomended because it turns it off system wide, we must do rebaleling on the particular file.
+>>> touch /.autorelabel
+>>> reboot
+Open virtualbox and show the virtual machine. The rebaleling will take some time.
+Note: if we copy the file instead of moving, the copy created will have the correct label and no relabeling will be required.
+Once the login screen appears we can connect with PuTTy
+>>> username: root
+>>> password: 1234
+If we open http://localhost/document on the browser again we see that we are able to see its contents.
+>>> ls -lZ /var/www/html/
+we see that all context are the same now
