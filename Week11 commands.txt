@@ -54,4 +54,75 @@ Now open PuTTygen -> File -> Load private key -> Change filter to All Files -> N
 Now we can see the extracted public key in the window.
 We can check its the same by
 >>> cat key.pub.pem
-57:56
+
+----------------------------------------------
+Changing the password of root user
+-> Start the virtual machine in normal mode
+-> Press the up or down arrow key as soon as boot screen appears
+-> Select the first option and press "e"
+-> add 'rd.break' before 'ro' in the fifth line
+-> ctrl + x to execute
+-> an emergency console will appear, now we have root priveledges
+-> Still passwd is not working so we cant yet change the root user password
+>>> mount 
+-> Issuing this command tells us that sda1 is mounted on /sysroot (last line)
+>>> mount -o remount,rw /sysroot/
+>>> chroot /sysroot/
+-> we get a new shell
+>>> /bin/passwd
+>>> 1234
+>>> 1234
+-> Now we have set the password of root to 1234, but we have to make some more changes before we can login with this password, we need to ask the system to do some relabeling
+>>> touch /.autorelabel
+>>>exit
+>>> reboot
+The relabeling process will take some time. The system will also reboot once
+>>> username: root
+>>> password: 1234
+And now we are able to login with this new password
+
+--------------------------------
+Close the last virtualmachine and restart it in headless mode and then connect with PuTTy
+>>> username: root
+>>> password: 1234
+
+We want to install a http web server on this machine
+>>> dnf install httpd
+>>> vi /etc/httpd/conf/httpd.conf
+We can see some useful infomation about the web server here. (':q' to quit)
+>>> echo HELLO >/var/www/html/hello.txt
+We add this 
+>>> systemctl start httpd
+>>> systemctl status httpd
+We start the sevrer, and see its status
+>>> firewall-cmd --list-services
+We can list the services, by default 3 are active
+>>> firewall-cmd --add-service http
+>>> firewall-cmd --list-services
+We can add a service
+These changes are not permanent, if we want to execute them automatically on boot time we have to enable it
+>>> systemctl enable httpd
+>>> firewall-cmd --permanent --add-service http
+
+Note if we want to use a port on a virtual machine, we need to map this port to a non virtual port on the host machine.
+Open Virtualbox -> Select the virtual machine -> Settings -> Network -> Advanced -> Port forwarding -> Add -> Change Host Port to 80 and Guest Port to 80 -> Ok -> Ok
+Now we are able to use the web server
+Open any browser -> http://localhost/hello.txt -> We get a website with the text 'HELLO' (As shown in the image in main PDF)
+
+>>> stat /var/www/html/hello.txt
+When we check the permissions of this file we see that its 644, read write on owner and read on group and others (this is the default settings). Now we need to change it so that it is not accessible by anyone else
+Chmod is a good option but we want to change the default settings. To change this we change the umask
+>>> umask
+Currently the umask is 022, if we change it to 077 then the defaults will be 600
+>>> umask 077
+Now we create another txt file
+>>> echo "Something" >/var/www/html/hello2.txt
+>>> stat /var/www/html/hello2.txt
+Now we can see the permissions are 600, only owner can read it.
+Now open the browser -> http://localhost/hello2.txt -> we get an error saying we cannot access this (shown as an image in the main PDF)
+
+We can change the owner to apache
+>>> chown apache /var/www/html/hello2.txt
+>>> stat /var/www/html/hello2.txt
+Now if we open the same link on the browser -> http://localhost/hello2.txt -> We are able to see the text 'Something' (shown as an image in the main PDF)
+This is because apache is the web server
