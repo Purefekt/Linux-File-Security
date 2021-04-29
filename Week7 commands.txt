@@ -45,9 +45,9 @@ First copy the UUID of /home by simply selecting it
 >>> vi /etc/fstab
 Navigate to the /home and remove the UUID currently there and paste the UUID we copied, since we are using vi, press "i" key to enter edit mode. Once pasted, use "Esc" key to exit edit mode and then enter ":wq" to save and exit.
 
-Now we want to add a new record to this file since we need to automaticallt manage the partition which contains the keys.
+Now we want to add a new record to this file since we need to automatically manage the partition which contains the keys.
 >>> vi /etc/fstab
-Copy thr last line and paste it, then save and exit the vi editor.
+Copy the last line and paste it, then save and exit the vi editor.
 Now run lsblk -f and copy the UUID of the /keys. Then open the fstab again in vi editor and paste this UUID in the last line which we just created in the previous step. Also remove none and add /keys, and change the file system to ext2. Also append nofail to defaults in /home and /keys and append read only ro to defaults,nofail in /keys. SEE THE IMAGE IN MAIN PDF TO SEE HOW EXACTLY THIS FILE LOOKS. Save and exit.
 >>> lsblk -f
 >>> vi /etc/fstab

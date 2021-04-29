@@ -3,7 +3,7 @@ Week5 commands [Veer Singh]
 >>> username: root
 >>> password: INBMA0634L
 
-We will make a loop device. It is a virtual harddrive which is mapped to a file in the file system. Basically this file can be accessable as a block device.
+We will make a loop device. It is a virtual harddrive which is mapped to a file in the file system. Basically this file can be accessable as a block device. 
 
 >>> lsblk
 >>> dd if=/dev/zero of=/loop-content-0 bs=4096 count=1024
