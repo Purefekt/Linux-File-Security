@@ -1,0 +1,52 @@
+>>> ls -a -l -i -d
+list contents of a directory in different ways
+>>> lsblk -f
+list block devices
+>>> ps
+list processes
+
+Adding a user with password
+>>> useradd NAME_OF_USER
+>>> passwd NAME_OF_USER
+Now enter the password twice
+
+>>> id
+shows information about the current user
+
+touch command is used to create a file without any content
+>>> touch /root/hello.txt
+creates an empty file called hello.txt inside /root
+
+cat command to print contents of a file
+>>> cat FILE_DESTINATION
+prints contents of the file
+
+cat command to create a file with some content
+>>> cat >/root/hello2.txt
+>>> lolol 420
+We created a file called hello2.txt inside /root/ directory and added the contents lolol 420. Pressing control + D will save and exit
+
+Groups: Creating a group and adding users to it 
+>>> useradd user1
+>>> useradd user2
+>>> groupadd lol
+>>> id user1
+>>> id user2
+>>> usermod -a -G lol user1
+>>> usermod -a -G lol user2
+>>> id user1
+>>> id user2
+We made 2 new users, made a new group called lol and added the two users to this group. We can use id command to see groups before and after.
+
+>>> stat FILE_DESTINATION
+shows information about a file (or directory)
+
+>>> blkid
+shows block device attributes
+
+>>> chmod 777 FILE_DESTINATION
+this changes the rights so that the owner, group members and others can read, write and execute
+
+>>> mkdir DIRECTORY_NAME
+to create a new directory in current working directory. Mention path to create in a different location
+
