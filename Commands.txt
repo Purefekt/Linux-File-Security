@@ -1,18 +1,34 @@
+########################################################################################
 >>> ls -a -l -i -d
 list contents of a directory in different ways
 >>> lsblk -f
 list block devices
 >>> ps
 list processes
+>>> file FILE_DESTINATION
+shows the type of file
+>>> id USER_NAME
+shows information about user
+>>> stat FILE_DESTINATION
+shows information about a file (or directory)
+>>> blkid
+shows block device attributes
+>>> chmod 777 FILE_DESTINATION
+this changes the rights so that the owner, group members and others can read, write and execute
+>>> mkdir DIRECTORY_NAME
+to create a new directory in current working directory. Mention path to create in a different location
+>>> cat /etc/passwd
+shows all users in the system
+########################################################################################
 
+########################################################################################
 Adding a user with password
 >>> useradd NAME_OF_USER
 >>> passwd NAME_OF_USER
 Now enter the password twice
+########################################################################################
 
->>> id
-shows information about the current user
-
+########################################################################################
 touch command is used to create a file without any content
 >>> touch /root/hello.txt
 creates an empty file called hello.txt inside /root
@@ -25,7 +41,9 @@ cat command to create a file with some content
 >>> cat >/root/hello2.txt
 >>> lolol 420
 We created a file called hello2.txt inside /root/ directory and added the contents lolol 420. Pressing control + D will save and exit
+########################################################################################
 
+########################################################################################
 Groups: Creating a group and adding users to it 
 >>> useradd user1
 >>> useradd user2
@@ -37,19 +55,9 @@ Groups: Creating a group and adding users to it
 >>> id user1
 >>> id user2
 We made 2 new users, made a new group called lol and added the two users to this group. We can use id command to see groups before and after.
+########################################################################################
 
->>> stat FILE_DESTINATION
-shows information about a file (or directory)
-
->>> blkid
-shows block device attributes
-
->>> chmod 777 FILE_DESTINATION
-this changes the rights so that the owner, group members and others can read, write and execute
-
->>> mkdir DIRECTORY_NAME
-to create a new directory in current working directory. Mention path to create in a different location
-
+########################################################################################
 >>> umask
 see default file permission settings, default is 022
 >>> mkdir hello
@@ -60,8 +68,10 @@ changes mask to 077
 >>> mkdir hello2
 >>> stat hello2
 we can see now with mask 077 default permissions is 0700
-mask is subtracted from 777 to create the permission vector for the new directory. For files umask is subtracted from 666.
+mask is subtracted from 777 to create the permission vector for the new directory. For files umask is subtracted from 666
+########################################################################################
 
+########################################################################################
 changing owner of a file
 >>> chown USER FILE_NAME
 changing group of a file
@@ -75,11 +85,9 @@ we can see the owner is root and the group is root
 >>> chown :lol /hello.txt
 We changed the owner to user and group to lol and we can see this by
 >>> ll /hello.txt
+########################################################################################
 
-All users on the system
->>> cat /etc/passwd
-shows all users in the system
-
+########################################################################################
 Set user id on execution, set group id on execution, set sticky bit
 >>> chmod 7777 /opt
 we change the permission vector of /opt folder to rwsrwsrwt, which means set use id bit on execution , set group id bit on execution and sticky bit are on. we have to also give execute permissions otherwise these are useless.
@@ -87,7 +95,9 @@ we change the permission vector of /opt folder to rwsrwsrwt, which means set use
 >>> chmod g-s /opt
 >>> chmod o-s /opt
 removes it from user, group and others respectively
+########################################################################################
 
+########################################################################################
 ACCESS CONTROL LIST (on a new vm)
 create a new file inside opt directory
 >>> touch /opt/test
@@ -115,3 +125,5 @@ we deleted the group lol
 Deleting all entries in ACL
 >>> setfacl -b /opt/test
 >>> getfacl /opt/test
+########################################################################################
+
