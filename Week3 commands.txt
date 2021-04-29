@@ -186,7 +186,7 @@ now we created this file as user1 inside /opt/ directory
 >>>user1>>> ls -la
 as we can see the attached group is users now. Since we already had put user2 inside users, we now have read and write priveledges on user2 for this file.
 
-if we change the rights to 040 which means group members can read the file but the owner and others have no rights. Then user2 will be able to read the file but user1 even though being a member of group users, wont be able tor read the file because the system first checks the owner priveledges. We can test this:
+if we change the rights to 040 which means group members can read the file but the owner and others have no rights. Then user2 will be able to read the file but user1 even though being a member of group users, wont be able to read the file because the system first checks the owner priveledges. We can test this:
 >>>user1>>> chmod 040 current-date.txt
 >>>user1>>> ls -al
 >>>user2>>> cat /opt/current-date.txt
