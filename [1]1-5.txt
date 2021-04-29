@@ -127,3 +127,25 @@ Deleting all entries in ACL
 >>> getfacl /opt/test
 ########################################################################################
 
+########################################################################################
+Partition
+>>> fdisk /dev/sda 
+>>> p #shows the partitions
+>>> n #to create new partition
+>>> p #p after n to creare primary partition, press enter twice for default settings
+>>> w #to write and save
+>>> lsblk -f 
+We can see a new partition sda4
+Adding ext2 file system to sda4
+>>>  mkfs.ext2 /dev/sda4
+Mounting sda4 to /mnt
+>>> mount /dev/sda4 /mnt
+>>> lsblk -f
+We can see we have a file system and a mount point. But this mount is not permanent. We need to edit the fstab file so that it is remounted on every reboot. Reboot the system and see.
+>>> lsblk -f
+Copy the UUID of sda4 - 16d57365-8ba4-422c-8d82-41c2a290f9c0 (in my case)
+>>> vi /etc/fstab
+Add this below the last entry - "UUID=16d57365-8ba4-422c-8d82-41c2a290f9c0 /mnt                    ext2    ro              0 0"
+Basically the UUID of sda4, mount point, file system, read only mode (can be defaults), 0,0
+Now try and reboot and see with lsblk -f
+########################################################################################

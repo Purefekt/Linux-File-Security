@@ -1,0 +1,74 @@
+########################################################################################
+>>> dd if=/dev/zero of=/FILE_NAME bs=4096 count=20240
+creates a file called FILE_NAME in / directory with file size 80 MB
+########################################################################################
+
+########################################################################################
+Encrypted file system
+We create a loop device first called test
+>>> dd if=/dev/zero of=/test bs=4096 count=20240
+>>> losetup -a
+>>> losetup -f /test
+>>> losetup -a
+We can see now we have a loop device /dev/loop0
+
+We need an external software
+>>> dnf install cryptsetup
+
+Set up encrypted file system on loop device
+>>> cryptsetup luksFormat /dev/loop0
+
+Creating a mapping, this creates a mapping in /dev/mapper
+>>> cryptsetup luksOpen /dev/loop0 encrypt1
+
+Creating the file system
+>>> mkfs.ext2 /dev/mapper/encrypt1
+
+To mount the new file system, we can see it contains the lost+found directory
+>>> mkdir /mnt/loop0
+>>> mount /dev/mapper/encrypt1 /mnt/loop0/
+>>> ls /mnt/loop0/
+
+Now we can add a secret file to this directory
+>>> cat >/mnt/loop0/secret.txt
+>>> PIN CODE: 1234
+>>> mcview /test
+
+All the data is encrypted, even if someone has physical access to it
+########################################################################################
+
+########################################################################################
+Using a password file instead of password (ON A NEW VM)
+>>> dnf install cryptsetup
+We create a file containing zeros called password-file in the / directory of 40MB
+>>> dd if=/dev/zero of=/password-file bs=4k count=10k
+>>> losetup -f /password-file
+>>> losetup -a
+We have a new loop device /dev/loop0
+
+We create a new file in the / directory with the text "secret password"
+>>> echo secret password >/password-key
+>>> chmod 000 /password-key
+>>> cryptsetup luksFormat /dev/loop0 --key-file /password-key
+>>> cryptsetup luksOpen /dev/loop0 encrypt2 --key-file /password-key
+>>> mkfs.xfs /dev/mapper/encrypt2
+>>> lsblk -f
+
+Encrypt the home directory. We create a new partition
+>>> fdisk /dev/sda 
+>>> p #shows the partitions
+>>> n #to create new partition
+>>> p #p after n to creare primary partition, press enter twice for default settings
+>>> w #to write and save
+>>> lsblk -f 
+We can see a new partition sda4
+
+Getting this new partition ready for encryption and mounting home to it
+>>> cryptsetup luksFormat /dev/sda4
+>>> cryptsetup luksOpen /dev/sda4 encrypted-home
+>>> mkfs.ext2 /dev/mapper/encrypted-home
+>>> umount /home/
+>>> mount /dev/mapper/encrypted-home /home/
+>>> lsblk -f
+>>> reboot
+reconnect
