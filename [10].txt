@@ -1,0 +1,62 @@
+########################################################
+Encrypting a file with DES-ECB
+We will create a file which contains the current date and encrypt it with des-ecb
+>>> date >date
+>>> cat date
+>>> xxd date
+>>>  openssl des-ecb -in date -out date.enc -K 1111111111111111
+To decrypt and print contents of the file
+>>> openssl des-ecb -d -in date.enc -K 1111111111111111
+the key 1111111111111111 should be correct
+########################################################
+
+########################################################
+Encrypting a file with DES-CBC
+>>>  openssl des-cbc -in date -K 1111111111111111 -iv 1111111111111111 | xxd
+Here we use a Key and an Initial Vector
+
+It is difficult to remember keys and initial vectors,so we use this to auto generate key and iv from a password.
+>>> openssl des-cbc -in date -k apple -out date.1 -p
+Here we have a key apple which contains information about key and iv.
+To decrypt
+>>> openssl des-cbc -d -k apple -in date.enc -out date.pub
+
+Using no salt method, to encrypt
+>>> openssl des-cbc -in date -k apple -nosalt -out date.3 -p
+########################################################
+
+########################################################
+Encrypting a file with DES-EDE-CBC (TDES)
+>>> openssl des-ede-cbc -in date -k apple -out date.tdes -p
+Decrypting
+>>> openssl des-ede-cbc -d -in date.tdes -k apple -out date.plain -p
+########################################################
+
+########################################################
+Encrypting a file with AES-128-CBC
+>>> openssl aes-128-cbc -k apple -in date -out date.aes -p
+Decrypting
+>>>  openssl aes-128-cbc -d -in date.aes -k apple -out date2 -p
+########################################################
+
+########################################################
+Generating key with openssl
+>>> openssl genpkey -algorithm RSA -out key.pem -pkeyopt rsa_keygen_bits:2048
+This will create a file called key.pem which is the private key.
+
+Creating public key from this private key
+>>>  openssl rsa -in key.pem -pubout -out key.pem.pub
+writing RSA key
+This will create a file called key.pem.pub which contains the public key
+
+Encrypting a file with the public key using openssl
+>>> openssl rsautl -encrypt -pubin -inkey key.pem.pub -in date -out date.enc
+We created a file called date.enc which is encrypted with the public key we made, which means only the owner of the private key can decrypt this file
+
+Decrypting this file
+>>> openssl rsautl -decrypt -inkey key.pem -in date.enc
+We will use the corresponding private ket and print out the contents of this file
+########################################################
+
+########################################################
+Signing a file with private key week 10 113

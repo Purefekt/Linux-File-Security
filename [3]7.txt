@@ -1,9 +1,9 @@
-########################################################################################
+########################################################
 This command tells the details about password for the user root
 >>> passwd -S root
-########################################################################################
+########################################################
 
-########################################################################################
+########################################################
 Locking password of a user as root
 Suppose we have user1 then we can lock the users password as root
 >>> passwd -l user1
@@ -11,9 +11,9 @@ We can confirm this by
 >>> passwd -S user1
 Unlocking the password
 >>> passwd -u user1
-########################################################################################
+########################################################
 
-########################################################################################
+########################################################
 PASSWORD EXPIRY INFORMATION CHAGE 
 We can see password expiry information of user1
 >>> chage -l user1
@@ -37,9 +37,9 @@ Here we set it to 5 days, the user will not be able to change the password till 
 We can add an account expiration date
 >>> chage -E 2021-03-01 user1
 Here we set it to 1 march 2021, if this date has been crossed this account is deleted.
-########################################################################################
+########################################################
 
-########################################################################################
+########################################################
 LINKS
 Creating a hardlink
 >>> ls -lai
@@ -51,9 +51,9 @@ Creating a softlink
 >>> ln -s anaconda anaconda.sl
 >>> ls -lai
 we created a softlink to anaconda and named it anaconda.sl
-########################################################################################
+########################################################
 
-########################################################################################
+########################################################
 SUDO 
 But we can use the Sudo command to give root priveledges to other users.
 Suppose we want to give user2 the rights to execute the binary 'poweroff', first find its path
@@ -67,4 +67,4 @@ Now we can go to user2 and try to execute the poweroff binary
 >>>user2>>> sudo /usr/sbin/poweroff
 >>>user2>>> 1234
 This turns off the computer and putty closes itself.
-########################################################################################
+########################################################

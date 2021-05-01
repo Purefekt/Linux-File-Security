@@ -1,4 +1,4 @@
-########################################################################################
+########################################################
 >>> ls -a -l -i -d
 list contents of a directory in different ways
 >>> lsblk -f
@@ -19,16 +19,16 @@ this changes the rights so that the owner, group members and others can read, wr
 to create a new directory in current working directory. Mention path to create in a different location
 >>> cat /etc/passwd
 shows all users in the system
-########################################################################################
+########################################################
 
-########################################################################################
+########################################################
 Adding a user with password
 >>> useradd NAME_OF_USER
 >>> passwd NAME_OF_USER
 Now enter the password twice
-########################################################################################
+########################################################
 
-########################################################################################
+########################################################
 CREATING FILES 
 
 touch command is used to create a file without any content
@@ -50,9 +50,9 @@ this is a file called test in the / directory with 83MB size
 
 Creating a file filles with random data of size 256B
 dd if=/dev/random of=/test2 count=256 bs=1
-########################################################################################
+########################################################
 
-########################################################################################
+########################################################
 Groups: Creating a group and adding users to it 
 >>> useradd user1
 >>> useradd user2
@@ -64,9 +64,9 @@ Groups: Creating a group and adding users to it
 >>> id user1
 >>> id user2
 We made 2 new users, made a new group called lol and added the two users to this group. We can use id command to see groups before and after.
-########################################################################################
+########################################################
 
-########################################################################################
+########################################################
 >>> umask
 see default file permission settings, default is 022
 >>> mkdir hello
@@ -78,9 +78,9 @@ changes mask to 077
 >>> stat hello2
 we can see now with mask 077 default permissions is 0700
 mask is subtracted from 777 to create the permission vector for the new directory. For files umask is subtracted from 666
-########################################################################################
+########################################################
 
-########################################################################################
+########################################################
 changing owner of a file
 >>> chown USER FILE_NAME
 changing group of a file
@@ -94,9 +94,9 @@ we can see the owner is root and the group is root
 >>> chown :lol /hello.txt
 We changed the owner to user and group to lol and we can see this by
 >>> ll /hello.txt
-########################################################################################
+########################################################
 
-########################################################################################
+########################################################
 Set user id on execution, set group id on execution, set sticky bit
 >>> chmod 7777 /opt
 we change the permission vector of /opt folder to rwsrwsrwt, which means set use id bit on execution , set group id bit on execution and sticky bit are on. we have to also give execute permissions otherwise these are useless.
@@ -104,9 +104,9 @@ we change the permission vector of /opt folder to rwsrwsrwt, which means set use
 >>> chmod g-s /opt
 >>> chmod o-s /opt
 removes it from user, group and others respectively
-########################################################################################
+########################################################
 
-########################################################################################
+########################################################
 ACCESS CONTROL LIST (on a new vm)
 create a new file inside opt directory
 >>> touch /opt/test
@@ -134,9 +134,9 @@ we deleted the group lol
 Deleting all entries in ACL
 >>> setfacl -b /opt/test
 >>> getfacl /opt/test
-########################################################################################
+########################################################
 
-########################################################################################
+########################################################
 Partition and mounting permanently
 >>> fdisk /dev/sda 
 >>> p #shows the partitions
@@ -157,9 +157,9 @@ Copy the UUID of sda4 - 16d57365-8ba4-422c-8d82-41c2a290f9c0 (in my case)
 Add this below the last entry - "UUID=16d57365-8ba4-422c-8d82-41c2a290f9c0 /mnt                    ext2    defaults,ro              0 0"
 Basically the UUID of sda4, mount point, file system, read only mode (can be defaults), 0,0
 Now try and reboot and see with lsblk -f
-########################################################################################
+########################################################
 
-########################################################################################
+########################################################
 Partition and mounting (when exam doesnt explicitly ask for permanent mount)
 >>> fdisk /dev/sda 
 >>> p #shows the partitions
@@ -173,4 +173,4 @@ Adding ext2 file system to sda4
 Mounting sda4 to /mnt
 >>> mount /dev/sda4 /mnt
 >>> mount -o remount,ro /mnt
-########################################################################################
+########################################################

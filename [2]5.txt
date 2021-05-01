@@ -1,9 +1,9 @@
-########################################################################################
+########################################################
 >>> dd if=/dev/zero of=/FILE_NAME bs=4096 count=20240
 creates a file called FILE_NAME in / directory with file size 80 MB
-########################################################################################
+########################################################
 
-########################################################################################
+########################################################
 Encrypted file system
 We create a loop device first called test
 >>> dd if=/dev/zero of=/test bs=4096 count=20240
@@ -35,9 +35,9 @@ Now we can add a secret file to this directory
 >>> mcview /test
 
 All the data is encrypted, even if someone has physical access to it
-########################################################################################
+########################################################
 
-########################################################################################
+########################################################
 Using a password file instead of password (ON A NEW VM)
 >>> dnf install cryptsetup
 We create a file containing zeros called password-file in the / directory of 40MB
