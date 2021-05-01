@@ -1,0 +1,39 @@
+########################################################################################
+This command tells the details about password for the user root
+>>> passwd -S root
+########################################################################################
+
+########################################################################################
+Locking password of a user as root
+Suppose we have user1 then we can lock the users password as root
+>>> passwd -l user1
+We can confirm this by
+>>> passwd -S user1
+Unlocking the password
+>>> passwd -u user1
+########################################################################################
+
+########################################################################################
+PASSWORD EXPIRY INFORMATION CHAGE 
+We can see password expiry information of user1
+>>> chage -l user1
+
+Changing last password date to 1 March 2021
+>>> chage -d 2021-03-01 user1
+
+Changing maximum number of days between password change to 10. 
+>>> chage -M 10 user1
+Now we add 10 days to the last password change date and if this date has been crossed then on next login user1 will be asked to change the password
+
+We can set an account expiry date, this is X amount of days after password inactive date
+>>> chage -I 5 user1
+Since our last password change date is 1 march, our max number of days between password change is 10 thus the password expires on 11 march, now we set a password inactive date 5 days after that on 16 march
+If this date is crossed the account doesnt expire but the user cannot login and change the password and use the machine, user must contact the root administrator
+
+We can set a minimum number of days between password change
+>>> chage -m 5 user1
+Here we set it to 5 days, the user will not be able to change the password till it has crossed 5 days since last password change.
+
+We can add an account expiration date
+>>> chage -E 2021-03-01 user1
+Here we set it to 1 march 2021, if this date has been crossed this account is deleted.

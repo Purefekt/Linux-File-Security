@@ -29,6 +29,8 @@ Now enter the password twice
 ########################################################################################
 
 ########################################################################################
+CREATING FILES 
+
 touch command is used to create a file without any content
 >>> touch /root/hello.txt
 creates an empty file called hello.txt inside /root
@@ -41,6 +43,13 @@ cat command to create a file with some content
 >>> cat >/root/hello2.txt
 >>> lolol 420
 We created a file called hello2.txt inside /root/ directory and added the contents lolol 420. Pressing control + D will save and exit
+
+Creating a file filles with zeros
+>>> dd if=/dev/zero of=/test bs=4096 count=20240
+this is a file called test in the / directory with 83MB size
+
+Creating a file filles with random data of size 256B
+dd if=/dev/random of=/test2 count=256 bs=1
 ########################################################################################
 
 ########################################################################################
@@ -128,7 +137,7 @@ Deleting all entries in ACL
 ########################################################################################
 
 ########################################################################################
-Partition
+Partition and mounting permanently
 >>> fdisk /dev/sda 
 >>> p #shows the partitions
 >>> n #to create new partition
@@ -145,7 +154,23 @@ We can see we have a file system and a mount point. But this mount is not perman
 >>> lsblk -f
 Copy the UUID of sda4 - 16d57365-8ba4-422c-8d82-41c2a290f9c0 (in my case)
 >>> vi /etc/fstab
-Add this below the last entry - "UUID=16d57365-8ba4-422c-8d82-41c2a290f9c0 /mnt                    ext2    ro              0 0"
+Add this below the last entry - "UUID=16d57365-8ba4-422c-8d82-41c2a290f9c0 /mnt                    ext2    defaults,ro              0 0"
 Basically the UUID of sda4, mount point, file system, read only mode (can be defaults), 0,0
 Now try and reboot and see with lsblk -f
+########################################################################################
+
+########################################################################################
+Partition and mounting (when exam doesnt explicitly ask for permanent mount)
+>>> fdisk /dev/sda 
+>>> p #shows the partitions
+>>> n #to create new partition
+>>> p #p after n to creare primary partition, press enter twice for default settings
+>>> w #to write and save
+>>> lsblk -f 
+We can see a new partition sda4
+Adding ext2 file system to sda4
+>>>  mkfs.ext2 /dev/sda4
+Mounting sda4 to /mnt
+>>> mount /dev/sda4 /mnt
+>>> mount -o remount,ro /mnt
 ########################################################################################

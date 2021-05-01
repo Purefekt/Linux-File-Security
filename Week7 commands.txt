@@ -91,7 +91,7 @@ Connect with putty
 >>> lsblk -f
 Now the /home and /keys shows up.
 
------NEW TOPIC---
+-------------NEW TOPIC------------------------------------------------------------
 Open the machine
 >>> username: root
 >>> password: INBMA0634L
