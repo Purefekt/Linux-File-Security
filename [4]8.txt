@@ -1,0 +1,55 @@
+########################################################################################
+Creating ssh key automatically
+>>> ssh-keygen
+Press enter three times for auto settings. This creates a public key and a private key inside the /root/.ssh/ directory.
+
+>>> ssh-keygen -f example -t RSA
+We created a custom key with name example with RSA encryption. This creates the private key example and public key example.pub. We have to use a password for this.
+
+>>> ssh-keygen -N '' -f example -t RSA
+We use this for password less key
+########################################################################################
+
+########################################################################################
+AUTHOIZED_KEYS
+If a users public key is in the authorized_keys of another user, that use can log in with ssh key
+We copy the public key we generated earlier into the /root/.ssh folder
+>>> cat id_rsa.pub >authorized_keys
+>>> chmod 600 authorized_keys
+>>> ll
+it is important that it is in 600 rights mode
+
+Now that the public key is inside authorized_keys we can use the private key to log into root.
+To do this we need to copy the private Key
+>>> cat id_rsa
+Now copy and paste into a txt file
+We will use puttygen
+Simple search for puttygen and open it.
+Load -> Change to all files -> Navigate to private.txt -> select it -> open -> Ok (See image in main PDF)
+Notice we get a public key which is the same as the public key id_rsa.pub.
+Now to save this
+-> Save private key -> Yes -> Filename - "new-private-key" -> Save
+This will create a .ppk file which can be used by putty. 
+Now to use this key to login
+Open putty -> Host Name: localhost -> Port: 10022 ->Category: SSH -> Auth -> Browse -> Navigate to the .ppk file -> Open -> Open
+This will open a putty terminal asking for the username, once we type "root" we will directly be logged in without the need for a password.
+
+We can also add multiple keys to the authorized_keys file.
+>>> cat /root/example.pub >> authorized_keys
+>>> vi authorized_keys
+>>> :set nowrap
+Using this vi command we can see now there are 2 keys and we can login via the example key as well.
+>>> :q
+########################################################################################
+
+########################################################################################
+Executing commands as a different used while connected as a different user
+Suppose we are logged in as user1 and we know the password of user2 then we can execute commands as user2
+>>> ssh user2@localhost id
+This will print the information of user2
+########################################################################################
+Public key in another user
+Suppose we have 2 users, user1 and user2 (they both have passwords). We create an automatic key on user1 with ssh-keygen. Then we go to user2 and create the .ssh inside /home/user2. Inside this we create a file called "authorized_keys". Then we go to user1 and copy the contents of the public key which we generated. Paste it into the authorized_keys file on user2.
+Now is we try to execute commands as user2 from user1 using ssh we wont be asked for password
+>>> ssh user2@localhost id
+########################################################################################

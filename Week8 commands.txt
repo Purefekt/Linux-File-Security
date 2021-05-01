@@ -55,7 +55,7 @@ Now to use this key to login
 Open putty -> Host Name: localhost -> Port: 10022 ->Category: SSH -> Auth -> Browse -> Navigate to the .ppk file -> Open -> Open
 This will open a putty terminal asking for the username, once we type "root" we will directly be logged in without the need for a password.
 
-We cal also add multiple keys to the authorized_keys file.
+We can also add multiple keys to the authorized_keys file.
 >>> cat /root/example.pub >> authorized_keys
 >>> vi authorized_keys
 >>> :set no wrap

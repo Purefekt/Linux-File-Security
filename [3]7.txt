@@ -37,3 +37,34 @@ Here we set it to 5 days, the user will not be able to change the password till 
 We can add an account expiration date
 >>> chage -E 2021-03-01 user1
 Here we set it to 1 march 2021, if this date has been crossed this account is deleted.
+########################################################################################
+
+########################################################################################
+LINKS
+Creating a hardlink
+>>> ls -lai
+>>> ln anaconda-ks.cfg anaconda
+>>> ls -lai
+we created a hard link to anaconds-ks.cfg and names it anaconda
+
+Creating a softlink
+>>> ln -s anaconda anaconda.sl
+>>> ls -lai
+we created a softlink to anaconda and named it anaconda.sl
+########################################################################################
+
+########################################################################################
+SUDO 
+But we can use the Sudo command to give root priveledges to other users.
+Suppose we want to give user2 the rights to execute the binary 'poweroff', first find its path
+>>> which poweroff
+We need to edit a config file
+>>> visudo
+Navigate to the line "Allow root to run any commands anywhere" and insert the following below root
+"user2 localhost=(root) /usr/sbin/poweroff" (SEE IMAGE IN MAIN PDF)
+save and exit
+Now we can go to user2 and try to execute the poweroff binary
+>>>user2>>> sudo /usr/sbin/poweroff
+>>>user2>>> 1234
+This turns off the computer and putty closes itself.
+########################################################################################
