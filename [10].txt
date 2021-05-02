@@ -59,4 +59,9 @@ We will use the corresponding private ket and print out the contents of this fil
 ########################################################
 
 ########################################################
-Signing a file with private key week 10 113
+Signing a file with private key
+>>> openssl rsautl -sign -inkey key.pem -in date -out date.sign
+
+Decrypt and see the contents
+>>> openssl rsautl -inkey key.pem.pub -pubin -in date.sign
+########################################################
