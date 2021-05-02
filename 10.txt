@@ -40,7 +40,7 @@ Decrypting
 ########################################################
 
 ########################################################
-Generating key with openssl
+Generating key with openssl RSA
 >>> openssl genpkey -algorithm RSA -out key.pem -pkeyopt rsa_keygen_bits:2048
 This will create a file called key.pem which is the private key.
 

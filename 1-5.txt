@@ -116,7 +116,7 @@ We see the ACL we see we have user (owner), group and others and their rights
 >>> passwd user1
 >>> 1234
 >>> 1234
-We added a new user and we will ad this to the ACL
+We added a new user and we will add this to the ACL
 >>> setfacl -m user:user1:rw /opt/test
 >>> getfacl /opt/test
 we can see we have another user owner called user1 with rw rights and mask also appeared

@@ -25,7 +25,7 @@ To do this we need to copy the private Key
 Now copy and paste into a txt file
 We will use puttygen
 Simple search for puttygen and open it.
-Load -> Change to all files -> Navigate to private.txt -> select it -> open -> Ok (See image in main PDF)
+Load -> Change to all files -> Navigate to private.txt -> select it -> open -> Ok
 Notice we get a public key which is the same as the public key id_rsa.pub.
 Now to save this
 -> Save private key -> Yes -> Filename - "new-private-key" -> Save

@@ -41,6 +41,3 @@ Fourth step is to verify the signature
 >>> openssl dgst -verify key.enc.pem -sha256 -signature document.sign document
 !!!!!!!!!!!!!!!!!! not working
 ########################################################
-
-########################################################
-week 11 83
