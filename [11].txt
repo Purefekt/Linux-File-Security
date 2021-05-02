@@ -1,0 +1,46 @@
+########################################################
+SIGNING A DOCUMENT SHA 256
+
+First step is to create the private and public key
+>>>  openssl genpkey -algorithm RSA -out key.pem -pkeyopt rsa_keygen_bits:2048
+>>> openssl rsa -in key.pem -out key.pub.pem -pubout
+This creates the private key and the public key from the private key
+
+Second step is to create the document to sign
+>>> cat >document
+>>> Some text to sign 
+We created a document with this text
+
+Third step is to sign the document with sha 256
+>>> openssl dgst -sign key.pem -out document.sign -sha256 document
+This creates a document called document.sign
+
+Fourth step is to check who signed the document with the corresponding public key
+>>> openssl dgst -verify key.pub.pem -sha256 -signature document.sign document
+If the document is changed or the public key is not the private key pair then it will not work.
+########################################################
+
+########################################################
+SIGNING A DOCUMENT SHA 256 WITH PASSWORD 
+
+First step is to create the key pair
+>>> openssl genpkey -algorithm RSA -out key.pem -pkeyopt rsa_keygen_bits:2048
+>>> openssl pkcs8 -topk8 -in key.pem -out key.enc.pem
+>>> 1234 (password)
+
+Second step is to create the document to sign
+>>> cat >document
+>>> hello world
+We created a document with this text
+
+Third step is to sign the document with sha 256
+>>>  openssl dgst -sign key.enc.pem -out document.sign -sha256 document
+>>> 1234
+
+Fourth step is to verify the signature
+>>> openssl dgst -verify key.enc.pem -sha256 -signature document.sign document
+!!!!!!!!!!!!!!!!!! not working
+########################################################
+
+########################################################
+week 11 83

@@ -42,7 +42,7 @@ We get a message Verification Failure
 >>> openssl dgst -sign key.enc.pem -out document.sign -sha256 document
 >>> 1234
 Now we sign the new document with the "!" at the end 
->>> openssl dgst -verify key.pub.pem -sha256 -signature document.sign document
+>>> openssl dgst -verify key.enc.pem -sha256 -signature document.sign document
 We get a Verified OK message
 
 The private key always stores information about the public key. We can generate a public key
