@@ -55,13 +55,13 @@ we created a softlink to anaconda and named it anaconda.sl
 
 ########################################################
 SUDO 
-But we can use the Sudo command to give root priveledges to other users.
+We can use the Sudo command to give root priveledges to other users.
 Suppose we want to give user2 the rights to execute the binary 'poweroff', first find its path
 >>> which poweroff
 We need to edit a config file
 >>> visudo
 Navigate to the line "Allow root to run any commands anywhere" and insert the following below root
-"user2 localhost=(root) /usr/sbin/poweroff" (SEE IMAGE IN MAIN PDF)
+"user2 localhost=(root) /usr/sbin/poweroff"
 save and exit
 Now we can go to user2 and try to execute the poweroff binary
 >>>user2>>> sudo /usr/sbin/poweroff

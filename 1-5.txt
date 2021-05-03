@@ -102,7 +102,7 @@ Set user id on execution, set group id on execution, set sticky bit
 we change the permission vector of /opt folder to rwsrwsrwt, which means set use id bit on execution , set group id bit on execution and sticky bit are on. we have to also give execute permissions otherwise these are useless.
 >>> chmod u-s /opt
 >>> chmod g-s /opt
->>> chmod o-s /opt
+>>> chmod o-t /opt
 removes it from user, group and others respectively
 ########################################################
 

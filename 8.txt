@@ -12,7 +12,7 @@ We use this for password less key
 
 ########################################################
 AUTHOIZED_KEYS
-If a users public key is in the authorized_keys of another user, that use can log in with ssh key
+If a users public key is in the authorized_keys of another user, that user can log in with ssh key
 We copy the public key we generated earlier into the /root/.ssh folder
 >>> cat id_rsa.pub >authorized_keys
 >>> chmod 600 authorized_keys
@@ -43,13 +43,13 @@ Using this vi command we can see now there are 2 keys and we can login via the e
 ########################################################
 
 ########################################################
-Executing commands as a different used while connected as a different user
+Executing commands as a different user while connected as a different user
 Suppose we are logged in as user1 and we know the password of user2 then we can execute commands as user2
 >>> ssh user2@localhost id
 This will print the information of user2
 ########################################################
 Public key in another user
 Suppose we have 2 users, user1 and user2 (they both have passwords). We create an automatic key on user1 with ssh-keygen. Then we go to user2 and create the .ssh inside /home/user2. Inside this we create a file called "authorized_keys". Then we go to user1 and copy the contents of the public key which we generated. Paste it into the authorized_keys file on user2.
-Now is we try to execute commands as user2 from user1 using ssh we wont be asked for password
+Now if we try to execute commands as user2 from user1 using ssh we wont be asked for password
 >>> ssh user2@localhost id
 ########################################################
