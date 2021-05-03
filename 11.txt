@@ -23,21 +23,24 @@ If the document is changed or the public key is not the private key pair then it
 ########################################################
 SIGNING A DOCUMENT SHA 256 WITH PASSWORD 
 
-First step is to create the key pair
+First step is to create the password protected private key
 >>> openssl genpkey -algorithm RSA -out key.pem -pkeyopt rsa_keygen_bits:2048
 >>> openssl pkcs8 -topk8 -in key.pem -out key.enc.pem
 >>> 1234 (password)
 
-Second step is to create the document to sign
+Second step is to create its public key
+>>> openssl rsa -in key.enc.pem -out key.pub.pem -pubout
+>>> 1234
+
+Third step is to create the document to sign
 >>> cat >document
 >>> hello world
 We created a document with this text
 
-Third step is to sign the document with sha 256
+Fourth step is to sign the document with sha 256
 >>>  openssl dgst -sign key.enc.pem -out document.sign -sha256 document
 >>> 1234
 
-Fourth step is to verify the signature
->>> openssl dgst -verify key.enc.pem -sha256 -signature document.sign document
-!!!!!!!!!!!!!!!!!! not working
+Fifth step is to verify the signature
+>>> openssl dgst -verify key.pub.pem -sha256 -signature document.sign document
 ########################################################
