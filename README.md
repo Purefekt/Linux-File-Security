@@ -12,3 +12,4 @@ Start with the main PDF and it will have directions on how to start any week whi
 - '>>>user2>>>' means this command was issued as user2
 - '>>>ssh-user-1>>>' means this command was issued as ssh-user-1
 - Anything other than these means it is not a command and is some explanation
+- Some more concise notes are inside the "Notes" directory
