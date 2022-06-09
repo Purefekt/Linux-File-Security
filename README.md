@@ -2,7 +2,7 @@
 
 These are my notes for the topics covered during the classes of the course IT Security. There is a [main PDF](https://github.com/Purefekt/Linux-File-Security/blob/main/main_PDF.pdf) which contains everything except the commands, and the weekly text files contain the commands used in class and what they do.  
 **NOTE: Do not use chrome's pdf viewer (or any other chromium based browser like Microsoft Edge) for the main PDF since it messes up the handwritten parts, using any other pdf viewer like adobe or safari is better. Viewing the PDF inside GitHub is also okay.**  
-These commands are common to all Linux operating systems but we use a custom copy of CentOS created by my professor linked [here](https://drive.google.com/file/d/13KQ0yzS99wd4oZcjUcdPVwn0VXd1pydB/view?usp=sharing). Simply open this link and download the CentOS Stream8.ova file, this is basically a compressed installable version of a virtual machine so it will work with ease with virtualbox.  
+These commands are common to all Linux operating systems but we use a custom copy of CentOS created by my professor linked [here](https://unidebhu-my.sharepoint.com/:u:/g/personal/veer-singh_mailbox_unideb_hu/Ect_VjIzNR9BkNg1skzMVn4BUIdZQw7JvMuR1TcqU0bnpQ?e=if8oy8). Simply open this link and download the CentOS Stream8.ova file, this is basically a compressed installable version of a virtual machine so it will work with ease with virtualbox.  
 You must import this copy to virtualbox and keep all settings the same.  
 Start with the main PDF and it will have directions on how to start any week which is followed by commands in the text file. 
 
